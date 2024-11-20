@@ -92,7 +92,7 @@ def jail_event(status): # iida
                     print('bee(the insect) free!')
                     release(status)
                     status.jailcard -= 1
-                    SQL_functions.modify_out_of_jail_card(jailcard, status.session_id)
+                    SQL_functions.modify_out_of_jail_card(status.jailcard, status.session_id)
                 else:
                     print("You don't have jailed card to use")
 
