@@ -68,13 +68,28 @@ let chance3 = document.createElement('p');
 chance3.innerHTML = 'CHANCE';
 document.querySelector(`[id='22']`).appendChild(chance3);
 
+// for (let i = 1; i < 23; i++){
+//     let cell = document.querySelector(`[id='${i}']`);
+//     let mpt = document.createElement('img');
+//     mpt.src = "img/empty_image_dumb.png"
+//     mpt.id = `cell_${i}_player`
+//     cell.appendChild(mpt);
+// }
+
 for (let i = 1; i < 23; i++){
     let cell = document.querySelector(`[id='${i}']`);
+    let celldiv = document.createElement('div');
     let mpt = document.createElement('img');
     mpt.src = "img/empty_image_dumb.png"
     mpt.id = `cell_${i}_player`
-    cell.appendChild(mpt);
+    let mpt2 = document.createElement('img');
+    mpt2.src = "img/empty_image_dumb.png"
+    mpt2.id = `cell_${i}_player`
+    celldiv.appendChild(mpt);
+    celldiv.appendChild(mpt2);
+    cell.appendChild(celldiv);
 }
+
 
 let jail_cell = document.querySelector('[id="cell_17_player"]');
 jail_cell.alt = "jail cell";

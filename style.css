@@ -30,7 +30,7 @@ form {
 
 .board img{
     width: 50%;
-    height: 50%;
+    height: 100%;
     border: none;
     outline: none;
 }
@@ -67,4 +67,9 @@ form {
     border: 2px solid red;
     background-color: white;
     padding: 3vh;
+    padding-top: 1vh ;
+}
+
+.jail-window img{
+    max-width: 50%;
 }
