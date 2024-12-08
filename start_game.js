@@ -2,13 +2,15 @@
 
 let player = {location: 1, money: 0}
 
-document.querySelector('[id="cell_1_player"]').src = "say gex.png";
+const playerimg = 'img/player.png'
+
+document.querySelector('[id="cell_1_player"]').src = playerimg;
 
 const startform = document.querySelector('#start-game');
 let username = '';
 
 function jailProceedings(){
-    document.querySelector(`[id="cell_17_player"]`).src = 'cat_jail.png';
+    document.querySelector(`[id="cell_17_player"]`).src = 'img/cat_jail.png';
     document.querySelector('#action-window').style.display = 'none';
     document.querySelector('#jail-window').style.display = 'block';
 }
@@ -33,16 +35,16 @@ function advancePlayer(step){
     document.querySelector('[id="current-round"]').innerHTML = round;
     
     if (oldlocation != 17){
-        document.querySelector(`[id="cell_${oldlocation}_player"]`).src = 'empty_image_dumb.png';
+        document.querySelector(`[id="cell_${oldlocation}_player"]`).src = 'img/empty_image_dumb.png';
     } else {
-        document.querySelector(`[id="cell_17_player"]`).src = 'ironbar.png';
+        document.querySelector(`[id="cell_17_player"]`).src = 'img/ironbar.png';
     }
 
 
     if (currentlocation == 6){
         jailProceedings();
     } else {    
-        document.querySelector(`[id="cell_${currentlocation}_player"]`).src = "say gex.png";
+        document.querySelector(`[id="cell_${currentlocation}_player"]`).src = playerimg;
     }
 }
 

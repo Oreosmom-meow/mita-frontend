@@ -71,13 +71,13 @@ document.querySelector(`[id='22']`).appendChild(chance3);
 for (let i = 1; i < 23; i++){
     let cell = document.querySelector(`[id='${i}']`);
     let mpt = document.createElement('img');
-    mpt.src = "empty_image_dumb.png"
+    mpt.src = "img/empty_image_dumb.png"
     mpt.id = `cell_${i}_player`
     cell.appendChild(mpt);
 }
 
 let jail_cell = document.querySelector('[id="cell_17_player"]');
 jail_cell.alt = "jail cell";
-jail_cell.src = "ironbar.png";    
+jail_cell.src = "img/ironbar.png";    
 
 document.querySelector('dialog').showModal();
