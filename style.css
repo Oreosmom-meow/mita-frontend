@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    font-size: 3vh;
+    font-size: 2vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -27,6 +27,14 @@ form {
     background-color: #ffffff;
     border: 2px solid #000;
 }
+
+.board img{
+    width: 50%;
+    height: 50%;
+    border: none;
+    outline: none;
+}
+
 .space {
     display: flex;
     flex-direction: column;
@@ -47,7 +55,7 @@ form {
     border: 2px solid green;
     background-color: white;
     padding: 3vh;
-    padding-top: 10vh;
+    padding-top: 1vh;
   }
 
 .jail-window {

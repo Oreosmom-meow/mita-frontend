@@ -68,4 +68,16 @@ let chance3 = document.createElement('p');
 chance3.innerHTML = 'CHANCE';
 document.querySelector(`[id='22']`).appendChild(chance3);
 
+for (let i = 1; i < 23; i++){
+    let cell = document.querySelector(`[id='${i}']`);
+    let mpt = document.createElement('img');
+    mpt.src = "empty_image_dumb.png"
+    mpt.id = `cell_${i}_player`
+    cell.appendChild(mpt);
+}
+
+let jail_cell = document.querySelector('[id="cell_17_player"]');
+jail_cell.alt = "jail cell";
+jail_cell.src = "ironbar.png";    
+
 document.querySelector('dialog').showModal();
