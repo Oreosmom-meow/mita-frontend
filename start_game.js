@@ -18,10 +18,26 @@ if (localsessionid !== '' && localsessionid !== null){
 // sets player icon onto go space
 document.querySelector('[id="cell_1_player"]').src = playerimg;
 
+async function makeBoard(){
+    let jsonData;
+    try{
+        const response = await fetch(`http://127.0.0.1:5000/gameapi/board`,{
+            credentials: 'include'
+        });
+        jsonData = await response.json();
+    } catch (error){
+        console.log(error);
+    }
+    console.log(jsonData);
+    for (let i of jsonData){
+        let airport_text = document.querySelector(`[id='cell_${i.board_id}_text']`);
+        airport_text.innerHTML = `${i.name}<br><br>Price: ${i.price}`;
+    }
+}
 
-function startGame(session_id){
+function startGame(){
 	// actually start game
-
+    makeBoard();
 	
 	document.querySelector('dialog').close();
 }
@@ -96,7 +112,7 @@ startform.addEventListener('submit', async function(event){
 			console.log(jsonData.session_id)
 			localsessionid = jsonData.session_id;
 			localStorage.setItem('session_id', localsessionid);
-            startGame(localsessionid);
+            startGame();
         } catch (error){
             console.log(error);
             document.querySelector('#start-info').innerHTML = `something went wrong. info: ${error}`;

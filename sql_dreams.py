@@ -16,7 +16,6 @@ def get_airports_while_dreaming(session_id): #ChatGPT
 		airports.append(thing)
 	return airports
 
-while(True):
-	list = get_airports_while_dreaming(1466)
-	print(list)
-	time.sleep(10)
+list = get_airports_while_dreaming(1448)
+print(list[0])
+

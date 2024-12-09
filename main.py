@@ -66,6 +66,17 @@ def play():
     # code here:
     return {"session_id":status.session_id}
 
+@app.route('/gameapi/board')
+def board():
+    # game state session, dont touch
+    game_state = session.get('game_state')
+    status = GameState()
+    for thing, value in game_state.items():
+        setattr(status, thing, value)
+    # code here:
+    board_airports = SQL_functions.get_airports_while_dreaming(status.session_id)
+    return board_airports
+
 
 @app.errorhandler(404)
 def page_not_found(error_code):

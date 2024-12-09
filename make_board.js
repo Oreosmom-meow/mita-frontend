@@ -28,6 +28,14 @@ for (let i = 22; i > 17; i--){
     cell.style = `grid-column: ${(24-i)}; grid-row: 6;`;
 }
 
+const airportcells = [2, 4, 5, 7, 8, 10, 13, 15, 16, 19, 20, 21];
+
+for (let cell of airportcells){
+    let text = document.createElement('p');
+    text.id = `cell_${cell}_text`
+    document.querySelector(`[id='${cell}']`).appendChild(text);
+}
+
 let go = document.createElement('p');
 go.innerHTML = 'GO';
 document.querySelector(`[id='1']`).appendChild(go);
@@ -45,15 +53,15 @@ jail.innerHTML = 'JAIL';
 document.querySelector(`[id='17']`).appendChild(jail);
 
 let incometax = document.createElement('p');
-incometax.innerHTML = 'INCOME TAX <br><br> PAY 200';
+incometax.innerHTML = 'INCOME TAX';
 document.querySelector(`[id='3']`).appendChild(incometax);
 
 let incometax2 = document.createElement('p');
-incometax2.innerHTML = 'INCOME TAX <br><br> PAY 200';
+incometax2.innerHTML = 'INCOME TAX';
 document.querySelector(`[id='9']`).appendChild(incometax2);
 
 let luxurytax = document.createElement('p');
-luxurytax.innerHTML = 'LUXURY TAX <br><br> PAY 500';
+luxurytax.innerHTML = 'LUXURY TAX';
 document.querySelector(`[id='18']`).appendChild(luxurytax);
 
 let chance = document.createElement('p');
