@@ -13,12 +13,11 @@
         <h1>ROUND</h1>
         <h1 id="current-round">1</h1>
         <img src="img/dice.png" alt="dice" id="play-button">
-        <p>you rolled:</p>
-        <p id="roll-value">nothing yet</p>
-        <p>current status: fucked</p>
+        <p id="roll-value">you rolled: nothing yet</p>
+		<br>
+        <p>current status: unpleasant</p>
         <br>
-        <p>money:</p>
-        <p id="player-money">not implemented</p>
+        <p id="player-money">money: not implemented</p>
         <p></p>
         <p></p>
         <p></p>
@@ -46,8 +45,14 @@
             <p id="start-info"></p>
             <input name="username" type="text" placeholder="Enter your username...">
             <br>
-            <input name="submit" type="submit" value="Submit">
+            <input name="submit" type="submit" value="Start game">
         </form>
+		<form class="load-game" id="load-game">
+			<input name="submit" type="submit" value="Load game">
+		</form>
+		<form class="delete-save" id="delete-save">
+			<input name="submit" type="submit" value="Delete save">
+		</form>
     </dialog>
 
     <div id="board" class="board">

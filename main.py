@@ -45,7 +45,10 @@ def start(username):
         "session_id": status.session_id,
         "score": status.score
     }
-    return status.session_id
+    return {
+		"session_id": status.session_id,
+		"status": 200
+	}
 @app.route('/gameapi/play')
 def play():
     # game state session, dont touch
@@ -54,6 +57,8 @@ def play():
     for thing, value in game_state.items():
         setattr(status, thing, value)
     # code here:
+    return status
+
 
 @app.errorhandler(404)
 def page_not_found(error_code):
@@ -66,6 +71,7 @@ def page_not_found(error_code):
     return http_response
 
 if __name__ == '__main__':
+    app.secret_key = "secret key"
     app.run(use_reloader=True, host='127.0.0.1', port=5000)
 
 #old main vvvvvvvv

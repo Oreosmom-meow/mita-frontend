@@ -1,15 +1,37 @@
 'use strict';
 
-// temp, should get this from the flask
+// temp
 let player = {location: 1, money: 0}
+let username = '';
+
+let localsessionid = localStorage.getItem('session_id');
+
+console.log(localsessionid);
+
+const startform = document.querySelector('#start-game');
+const loadform = document.querySelector('#load-game');
+const nukeform = document.querySelector('#delete-save')
+let deletecount = 0;
 
 const playerimg = 'img/player.png'
+
+if (localsessionid !== '' && localsessionid !== null){
+	nukeform.style.display = 'block';
+	loadform.style.display = 'block';
+}
 
 // sets player icon onto go space
 document.querySelector('[id="cell_1_player"]').src = playerimg;
 
-const startform = document.querySelector('#start-game');
-let username = '';
+
+function startGame(session_id){
+	// actually start game
+
+	
+	document.querySelector('dialog').close();
+}
+
+
 
 // temp, hopefully. puts player in jail.
 function jailProceedings(){
@@ -18,6 +40,7 @@ function jailProceedings(){
     document.querySelector('#action-window').style.display = 'none';
     document.querySelector('#jail-window').style.display = 'block';
 
+	// get out of jail, free
     document.querySelector('#jail-card-button').addEventListener('click', (event) => {
         document.querySelector(`[id="cell_17_player"]`).src = playerimg;
         document.querySelector('#jail-window').style.display = 'none';
@@ -28,8 +51,8 @@ function jailProceedings(){
 // rolls the dice
 // actual roll should be in the flask
 function diceRoll(){
-    let roll = Math.floor(Math.random()*6) + Math.floor(Math.random()*6);
-    document.querySelector('#roll-value').innerHTML = roll;
+    let roll = (Math.floor(Math.random()*6) + 1) + (Math.floor(Math.random()*6) + 1);
+    document.querySelector('#roll-value').innerHTML = `you rolled: ${roll}`;
     return roll;
 }
 
@@ -64,19 +87,18 @@ function advancePlayer(step){
     }
 }
 
-// (hopefully) actually start the game
+// get new session id from api
 startform.addEventListener('submit', async function(event){
     event.preventDefault();
 
     username = document.querySelector('input[name=username]').value;
     if (username !== ''){
         try{
-            const response = await fetch(`http://localhost/gameapi/start/${username}`);
+            const response = await fetch(`http://127.0.0.1:5000/gameapi/start/${username}`);
             const jsonData = await response.json();
-            console.log(jsonData);
-            // todo: actually use data to set up the game
-            // this, however, needs a functional backend
-            document.querySelector('dialog').close();
+			const localsessionid = jsonData.session_id;
+			localStorage.setItem('session_id', localsessionid);
+            startGame(localsessionid);
         } catch (error){
             console.log(error);
             document.querySelector('#start-info').innerHTML = `something went wrong. info: ${error}`;
@@ -86,6 +108,32 @@ startform.addEventListener('submit', async function(event){
     }
 });
 
+// load game
+loadform.addEventListener('submit', function(event){
+    event.preventDefault();
+    if (localsessionid !== ''){
+        try{
+            startGame(localsessionid);
+        } catch (error){
+            console.log(error);
+            document.querySelector('#start-info').innerHTML = `something went wrong. info: ${error}`;
+        }
+    }
+});
+
+nukeform.addEventListener('submit', function(event){
+    event.preventDefault();
+	if (deletecount < 3){
+		document.querySelector('#start-info').innerHTML = `are you sure? press the button ${3-deletecount} more times`;
+		deletecount++;
+	} else{
+		localStorage.removeItem('session_id');
+		document.querySelector('#start-info').innerHTML = '';
+		nukeform.style.display = 'none';
+		loadform.style.display = 'none';
+	}
+    }
+);
 
 // test for movement
 let playbutton = document.querySelector('#play-button');
