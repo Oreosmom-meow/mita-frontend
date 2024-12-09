@@ -23,7 +23,14 @@ connector.print_connection_time()
 
 # GAME SETUP USING FLASK SESSIONS, START CREATES THE SESSION, PLAY SHOWS HOW TO RE-INITIALIZE SESSION WHEN DOING ANY FUNCTION
 app = Flask(__name__)
-CORS(app)
+app.secret_key = "secret key"
+CORS(app, supports_credentials=True)
+app.config.update({
+    'SESSION_COOKIE_SECURE': False,          # Set True for HTTPS
+    'SESSION_COOKIE_DOMAIN': '127.0.0.1',
+    'SESSION_COOKIE_PATH': '/',
+
+})
 @app.route('/gameapi/start/<username>')
 def start(username):
     status = GameState()
@@ -57,7 +64,7 @@ def play():
     for thing, value in game_state.items():
         setattr(status, thing, value)
     # code here:
-    return status
+    return {"session_id":status.session_id}
 
 
 @app.errorhandler(404)
@@ -71,7 +78,6 @@ def page_not_found(error_code):
     return http_response
 
 if __name__ == '__main__':
-    app.secret_key = "secret key"
     app.run(use_reloader=True, host='127.0.0.1', port=5000)
 
 #old main vvvvvvvv

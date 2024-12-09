@@ -3,15 +3,10 @@
 // temp
 let player = {location: 1, money: 0}
 let username = '';
-
-let localsessionid = localStorage.getItem('session_id');
-
-console.log(localsessionid);
+let localsessionid = '';
 
 const startform = document.querySelector('#start-game');
-const loadform = document.querySelector('#load-game');
-const nukeform = document.querySelector('#delete-save')
-let deletecount = 0;
+const statustext = document.querySelector('#status');
 
 const playerimg = 'img/player.png'
 
@@ -87,16 +82,19 @@ function advancePlayer(step){
     }
 }
 
-// get new session id from api
+// new game :)
 startform.addEventListener('submit', async function(event){
     event.preventDefault();
 
     username = document.querySelector('input[name=username]').value;
     if (username !== ''){
         try{
-            const response = await fetch(`http://127.0.0.1:5000/gameapi/start/${username}`);
+            const response = await fetch(`http://127.0.0.1:5000/gameapi/start/${username}`,{
+				credentials: 'include'
+			});
             const jsonData = await response.json();
-			const localsessionid = jsonData.session_id;
+			console.log(jsonData.session_id)
+			localsessionid = jsonData.session_id;
 			localStorage.setItem('session_id', localsessionid);
             startGame(localsessionid);
         } catch (error){
@@ -108,32 +106,17 @@ startform.addEventListener('submit', async function(event){
     }
 });
 
-// load game
-loadform.addEventListener('submit', function(event){
-    event.preventDefault();
-    if (localsessionid !== ''){
-        try{
-            startGame(localsessionid);
-        } catch (error){
-            console.log(error);
-            document.querySelector('#start-info').innerHTML = `something went wrong. info: ${error}`;
-        }
-    }
-});
-
-nukeform.addEventListener('submit', function(event){
-    event.preventDefault();
-	if (deletecount < 3){
-		document.querySelector('#start-info').innerHTML = `are you sure? press the button ${3-deletecount} more times`;
-		deletecount++;
-	} else{
-		localStorage.removeItem('session_id');
-		document.querySelector('#start-info').innerHTML = '';
-		nukeform.style.display = 'none';
-		loadform.style.display = 'none';
+statustext.addEventListener('click', async function(event) {
+	try{
+		const response = await fetch('http://127.0.0.1:5000/gameapi/play',{
+				credentials: 'include'
+			  });
+		const jsonData = await response.json();
+		console.log(jsonData);
+	} catch (error){
+		console.log(error);
 	}
-    }
-);
+});
 
 // test for movement
 let playbutton = document.querySelector('#play-button');
