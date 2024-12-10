@@ -95,32 +95,9 @@ def buy_airport(status): #yutong
 
 def sell_airport(status): # roberto
     temp_money = SQL_functions.get_money(status.session_id)
-    upgrade_level = SQL_functions.get_upgrade_status(status)
-    if upgrade_level == 3:
-        temp_money = temp_money + (SQL_functions.get_airport_price(status.session_idposition) * 0.5 * 0.75)
-        SQL_functions.modify_money(temp_money,status.session_idsession_id)
-        temp_level = upgrade_level - 1
-        SQL_functions.modify_airport_status(status.position, temp_level,status.session_id)
-        print(f'You have downgraded this airport from {upgrade_level} to {temp_level}')
-    elif upgrade_level == 2:
-        temp_money = temp_money + (SQL_functions.get_airport_price(status.position) * 0.5 * 0.5)
-        SQL_functions.modify_money(temp_money,status.session_id)
-        temp_level = upgrade_level - 1
-        SQL_functions.modify_airport_status(status.position, temp_level,status.session_id)
-        print(f'You have downgraded this airport from {upgrade_level} to {temp_level}')
-    elif upgrade_level == 1:
-        temp_money = temp_money + (SQL_functions.get_airport_price(status.position) * 0.5 * 0.25)
-        SQL_functions.modify_money(temp_money,status.session_id)
-        temp_level = upgrade_level - 1
-        SQL_functions.modify_airport_status(status.position, temp_level,status.session_id)
-        print(f'You have downgraded this airport from {upgrade_level} to {temp_level}')
-    elif upgrade_level == 0:
-        temp_money = temp_money +  (SQL_functions.get_airport_price(status.position) * 0.5)
-        SQL_functions.modify_money(temp_money,status.session_id)
-        SQL_functions.modify_owner_to_bank(status.position,status.session_id)
-        print(f'You have sold this airport to the bank')
-    else:
-        pass
+    temp_money = temp_money + (SQL_functions.get_airport_price(status.position) * 0.5)
+    SQL_functions.modify_money(temp_money,status.session_id)
+    SQL_functions.modify_owner_to_bank(status.position,status.session_id)  
 
 def get_sell_price(status):
     upgrade_level = SQL_functions.get_upgrade_status(status)
@@ -137,27 +114,12 @@ def get_sell_price(status):
     return temp_money
 
 def upgrade_airport(status): # roberto
-    #   get_airport_price(position)
     upgrade_level = SQL_functions.get_upgrade_status(status)
     temp_price = SQL_functions.get_airport_price(status.position)
-    if upgrade_level == 0:
-        temp_money = SQL_functions.get_money(status.session_id) - 25% temp_price
-        SQL_functions.modify_money(temp_money,status.session_id)
-        temp_level = upgrade_level + 1
-        SQL_functions.modify_airport_status(status.position, temp_level,status.session_id)
-        print(f'{colors.col.BOLD}{colors.col.GREEN}You have successfully upgraded to level {SQL_functions.get_upgrade_status(status)}.{colors.col.END}')
-    elif upgrade_level == 1:
-        temp_money = SQL_functions.get_money(status.session_id) - 50% temp_price
-        SQL_functions.modify_money(temp_money,status.session_id)
-        temp_level = upgrade_level + 1
-        SQL_functions.modify_airport_status(status.position, temp_level,status.session_id)
-        print(f'{colors.col.BOLD}{colors.col.GREEN}You have successfully upgraded to level {SQL_functions.get_upgrade_status(status)}.{colors.col.END}')
-    elif upgrade_level == 2:
-        temp_money = SQL_functions.get_money(status.session_id) - 75% temp_price
-        SQL_functions.modify_money(temp_money,status.session_id)
-        temp_level = upgrade_level + 1
-        SQL_functions.modify_airport_status(status.position, temp_level,status.session_id)
-        print(f'{colors.col.BOLD}{colors.col.GREEN}You have successfully upgraded to level {SQL_functions.get_upgrade_status(status)}.{colors.col.END}')
+    temp_money = SQL_functions.get_money(status.session_id) - 25% temp_price
+    SQL_functions.modify_money(temp_money,status.session_id)
+    temp_level = upgrade_level + 1
+    SQL_functions.modify_airport_status(status.position, temp_level,status.session_id)
 
 
 def price_to_upgrade(status):
@@ -184,11 +146,11 @@ def chance_card(status): # yutong
     elif card_id == 2:
         print(f'You picked card: Get out of jail. You can use it once when you are in jail.')
         status.jail_card += 1
-    elif card_id == 3:
+    elif card_id == 11:
         print(f'You picked card: Go to jail. You will be moved to jail immediately.')
         #jail_event(status)
         status.position = 17
-    elif card_id == 4:
+    elif card_id == 4 or 3: # CHANGE !!!!!!!!!!!!!!!!!!!!
         temp_money = temp_money + 50
         print(f'You picked card: Bank pays you 50! You will get $50 from the bank, congratulations!')
         SQL_functions.modify_money(temp_money,status.session_id)
@@ -309,27 +271,54 @@ def rounds_up(status):
     status.rounds += 1
     status.position = status.position - 21
 
-def airport_cell(status):
+def check_airport_cell(status):
+    owner = SQL_functions.check_airport_owner(status)
+    temp_money = SQL_functions.get_money(status.session_id)
+
+    if owner == status.username:
+        upgrade_level = SQL_functions.get_upgrade_status(status)
+        if upgrade_level == 1:
+            return "ownedupgraded"
+        upgradeable = SQL_functions.check_owns_all_of_country(status)
+        if upgradeable and (price_to_upgrade(status) < temp_money):
+            return "ownedyes"
+        else:
+            return "ownedno"
+    elif owner == "bank":
+        return "bank"
+    else:
+        airport_price = SQL_functions.get_airport_price(status.position)
+        if temp_money > airport_price:
+            return "noyes"
+        else:
+            return "nono"
+
+
+def airport_cell(status, param):
     airport_price = SQL_functions.get_airport_price(status.position)
     country_name = SQL_functions.get_country_name(status)
     airport_name = SQL_functions.get_airport_name(status)
     temp_money = SQL_functions.get_money(status.session_id)
     owner = SQL_functions.check_airport_owner(status)
+    
+    if param == "buy":
+        buy_airport(status)
+    if param == "sell":
+        sell_airport(status)
+    if param == "upgrade":
+        upgrade_airport(status)
+
+
+
     # first check the owner of the airport
     if owner == status.username:
         upgrade_level = SQL_functions.get_upgrade_status(status)
         upgrade_choice = SQL_functions.check_owns_all_of_country(status)
         # print(upgrade_choice)
         if upgrade_choice:
-            if upgrade_level == 3:
+            if upgrade_level == 1:
                 print(
-                    f'This airport is at level {upgrade_level} - you can not upgrade further ,The price to sell this level is ${get_sell_price(status)}')
-            elif upgrade_level == 2:
-                print(
-                    f'This airport is at level {upgrade_level}, the price to upgrade is ${price_to_upgrade(status)} ,The price to sell this level is ${get_sell_price(status)}')
-            elif upgrade_level == 1:
-                print(
-                    f'This airport is at level {upgrade_level}, the price to upgrade is ${price_to_upgrade(status)} ,The price to sell this level is ${get_sell_price(status)}')
+                    f'This airport is upgraded. The price to sell this level is ${get_sell_price(status)}')
             elif upgrade_level == 0:
                 print(
                     f'This airport is at level {upgrade_level}, the price to upgrade is ${price_to_upgrade(status)} ,The price to sell airport is ${get_sell_price(status)}')

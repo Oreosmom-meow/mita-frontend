@@ -92,11 +92,21 @@ async function movePlayer(){
 	console.log(id);
 
 		switch(id){
+			case 'ownedupgraded':
+				// todo: sell upgrade
+				break;
 			case 'ownedyes':
+				// make upgrade and sell buttons visible
 				break;
 			case 'ownedno':
+				// make sell button visible
 				break;
-			case 'not':
+			case 'nono':
+				break;
+			case 'noyes':
+				/////// make buy button visible
+				//document.querySelector('#buy-button').style.display = 'block';
+				
 				break;
 			case 'bank':
 				break;
@@ -141,6 +151,54 @@ async function movePlayer(){
 				break;
 
 		}
+    } catch (error){
+        console.log(error);
+    }
+}
+
+async function upgradeAirport(){
+	try{
+        const response = await fetch(`http://127.0.0.1:5000/gameapi/tori/upgrade`,{
+            credentials: 'include'
+        });
+        let jsonData = await response.json();
+		document.querySelector('#upgrade-button').style.display = 'none';
+		document.querySelector('#sell-button').style.display = 'none';
+		document.querySelector(`#cell_${jsonData['position']}_slot2`).src = 'img/owned_upgraded.png';
+		document.querySelector('#player-money').innerHTML = `Money: ${jsonData['money']}`;
+
+    } catch (error){
+        console.log(error);
+    }
+}
+
+
+async function buyAirport(){
+	try{
+        const response = await fetch(`http://127.0.0.1:5000/gameapi/tori/buy`,{
+            credentials: 'include'
+        });
+        let jsonData = await response.json();
+		document.querySelector('#buy-button').style.display = 'none';
+		document.querySelector(`#cell_${jsonData['position']}_slot2`).src = 'img/owned.png';
+		document.querySelector('#player-money').innerHTML = `Money: ${jsonData['money']}`;
+
+    } catch (error){
+        console.log(error);
+    }
+}
+
+async function sellAirport(){
+	try{
+        const response = await fetch(`http://127.0.0.1:5000/gameapi/tori/sell`,{
+            credentials: 'include'
+        });
+        let jsonData = await response.json();
+		document.querySelector('#upgrade-button').style.display = 'none';
+		document.querySelector('#sell-button').style.display = 'none';
+		document.querySelector(`#cell_${jsonData['position']}_slot2`).src = 'img/bank_owned.png';
+		document.querySelector('#player-money').innerHTML = `Money: ${jsonData['money']}`;
+
     } catch (error){
         console.log(error);
     }

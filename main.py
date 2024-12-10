@@ -103,6 +103,29 @@ def board():
     return response
 
 
+@app.route('/gameapi/tori/<param>')
+def tori(param):
+    # game state session, dont touch
+    game_state = session.get('game_state')
+    status = GameState()
+    for thing, value in game_state.items():
+        setattr(status, thing, value)
+    # code here:
+    try:
+        Game_functions.airport_cell(status, param)
+
+        response = {
+            "money": status.money,
+            "position": status.position
+        }
+        setStatus(status)
+
+        return response
+
+
+    except:
+        return {"status":400}
+
 ##### THIS BASICALLY HANDLES GAMEPLAY, SAME AS MAIN GAME FUNCTION !!!!!!!
 @app.route('/gameapi/move')
 def move():
@@ -112,65 +135,75 @@ def move():
     for thing, value in game_state.items():
         setattr(status, thing, value)
     # code here:
-    try:
-        bankrupt = False
-        start_position = status.position
-        start_money = SQL_functions.get_money(status.session_id)
-        oldrounds = status.rounds
-        r1, r2, status = Game_functions.roll_and_move(status)
-        newrounds = status.rounds
+    bankrupt = False
+    start_position = status.position
+    start_money = SQL_functions.get_money(status.session_id)
+    oldrounds = status.rounds
+    jailcheat = True
+    while jailcheat:
+        tempstatus = status
+        r1, r2, tempstatus = Game_functions.roll_and_move(tempstatus)
+        if tempstatus.position != 6:
+            jailcheat = False
+            status = tempstatus
+    newrounds = status.rounds
+    print(status.position)
+    if newrounds > 20:
+        print('yay!')
 
-        if newrounds > 20:
-            print('yay!')
+    else:
+        total = r1 + r2
+        if total == 200:
+            print("yay!")
+        # if Game_functions.check_if_double(r1, r2, status):
+        #     status.doubles += 1
+        # else:
+        #     status.doubles = 0
 
+        # if status.doubles >= 2:
+        #     status.jailed = True
+        #     status.doubles = 0
         else:
-            total = r1 + r2
-            if Game_functions.check_if_double(r1, r2, status):
-                status.doubles += 1
+            temp_type_id = SQL_functions.get_type_id(status.position)
+            # airport cell
+            if temp_type_id == 1:
+                id = Game_functions.check_airport_cell(status)
+            # Other cells
+            elif temp_type_id == 2:
+                id = Game_functions.chance_card(status)
+            elif temp_type_id == 3:
+                id = Game_functions.go_to_jail(status)
+            elif temp_type_id == 4:
+                id = Game_functions.income_tax(status.session_id)
+            elif temp_type_id == 5:
+                id = Game_functions.luxury_tax(status.session_id)
             else:
-                status.doubles = 0
+                id = 0
 
-            if status.doubles >= 2:
-                status.jailed = True
-                status.doubles = 0
-            else:
-                temp_type_id = SQL_functions.get_type_id(status.position)
-                # airport cell
-                if temp_type_id == 1:
-                    id = Game_functions.airport_cell(status)
-                # Other cells
-                elif temp_type_id == 2:
-                    id = Game_functions.chance_card(status)
-                elif temp_type_id == 3:
-                    id = Game_functions.go_to_jail(status)
-                elif temp_type_id == 4:
-                    id = Game_functions.income_tax(status.session_id)
-                elif temp_type_id == 5:
-                    id = Game_functions.luxury_tax(status.session_id)
+        print(id)
 
-            end_money = SQL_functions.get_money(status.session_id)
-            if newrounds > oldrounds:
-                Game_functions.salary(status)
+        end_money = SQL_functions.get_money(status.session_id)
+        if newrounds > oldrounds:
+            Game_functions.salary(status)
 
-            if SQL_functions.get_money(status.session_id) <= 0:
-                bankrupt = True
+        if SQL_functions.get_money(status.session_id) <= 0:
+            bankrupt = True
 
-            response = {
-                "bankrupt": bankrupt,
-                "start_money": start_money,
-                "end_money": end_money,
-                "money": SQL_functions.get_money(status.session_id),
-                "id": id,
-                "total": total,
-                "start_position": start_position,
-                "end_position": status.position,
-                "round": status.rounds,
-                "status": 200
-            }
-            setStatus(status)
-            return response
-    except:
-        return {"status":400}
+        response = {
+            "bankrupt": bankrupt,
+            "start_money": start_money,
+            "end_money": end_money,
+            "money": SQL_functions.get_money(status.session_id),
+            "id": id,
+            "total": total,
+            "start_position": start_position,
+            "end_position": status.position,
+            "round": status.rounds,
+            "status": 200
+        }
+        setStatus(status)
+        return response
+
 
 @app.errorhandler(404)
 def page_not_found(error_code):
