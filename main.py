@@ -120,7 +120,7 @@ def move():
         newrounds = status.rounds
 
         if newrounds > 20:
-            break
+            print('yay!')
 
         else:
             total = r1 + r2
