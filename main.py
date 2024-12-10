@@ -116,7 +116,9 @@ def move():
         start_position = status.position
         print(start_position)
         r1, r2, status = Game_functions.roll_and_move(status)
+        total = r1 + r2
         response = {
+            "total": total,
             "start_position": start_position,
             "end_position": status.position,
             "round": status.rounds,

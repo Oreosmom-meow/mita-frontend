@@ -28,7 +28,7 @@ async function makeBoard(){
         let money = jsonData["money"];
         for (let airport of airportArray){
             let airport_text = document.querySelector(`[id='cell_${airport.board_id}_text']`);
-            airport_text.innerHTML = `${airport.name}<br><br>Price: ${airport.price}`;
+            airport_text.innerHTML = `${airport.name}<br>Price: ${airport.price}`;
         }
         document.querySelector('#player-money').innerHTML = `money: ${money}`;
     } catch (error){
@@ -76,6 +76,7 @@ async function movePlayer(){
         console.log(jsonData);
         let startposition = jsonData["start_position"];
         let endposition = jsonData["end_position"];
+		let total = jsonData["total"]
 
         if (startposition != 17){
             document.querySelector(`[id="cell_${startposition}_player"]`).src = 'img/empty_image_dumb.png';
@@ -83,6 +84,8 @@ async function movePlayer(){
             document.querySelector(`[id="cell_17_player"]`).src = 'img/ironbar.png';
         }
         document.querySelector(`[id="cell_${endposition}_player"]`).src = playerimg;
+
+		document.querySelector('#roll-value').innerHTML = `you rolled: ${total}`
 
         let currentround = document.querySelector('#current-round');
         let tempRound = parseInt(currentround.innerHTML);
