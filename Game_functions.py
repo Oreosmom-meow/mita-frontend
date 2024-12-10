@@ -114,26 +114,17 @@ def get_sell_price(status):
     return temp_money
 
 def upgrade_airport(status): # roberto
-    upgrade_level = SQL_functions.get_upgrade_status(status)
     temp_price = SQL_functions.get_airport_price(status.position)
     temp_money = SQL_functions.get_money(status.session_id) - 25% temp_price
     SQL_functions.modify_money(temp_money,status.session_id)
-    temp_level = upgrade_level + 1
+    temp_level = 1
     SQL_functions.modify_airport_status(status.position, temp_level,status.session_id)
 
 
 def price_to_upgrade(status):
     upgrade_level = SQL_functions.get_upgrade_status(status)
     temp_price = SQL_functions.get_airport_price(status.position)
-    if upgrade_level == 0:
-        temp_money =  25% temp_price
-        #print(f'the price to upgrade is ${temp_money}')
-    elif upgrade_level == 1:
-        temp_money = 50% temp_price
-        #print(f'the price to upgrade is ${temp_money}')
-    elif upgrade_level == 2:
-        temp_money = 75% temp_price
-        #print(f'the price to upgrade is ${temp_money}')
+    temp_money =  25% temp_price
     return temp_money
 
 def chance_card(status): # yutong
@@ -274,6 +265,7 @@ def rounds_up(status):
 def check_airport_cell(status):
     owner = SQL_functions.check_airport_owner(status)
     temp_money = SQL_functions.get_money(status.session_id)
+    airport_price = SQL_functions.get_airport_price(status.position)
 
     if owner == status.username:
         upgrade_level = SQL_functions.get_upgrade_status(status)
@@ -285,9 +277,11 @@ def check_airport_cell(status):
         else:
             return "ownedno"
     elif owner == "bank":
+        rent = airport_price * 0.5
+        temp_money = temp_money - rent
+        SQL_functions.modify_money(temp_money, status.session_id)
         return "bank"
     else:
-        airport_price = SQL_functions.get_airport_price(status.position)
         if temp_money > airport_price:
             return "noyes"
         else:
@@ -307,54 +301,6 @@ def airport_cell(status, param):
         sell_airport(status)
     if param == "upgrade":
         upgrade_airport(status)
-
-
-
-    # first check the owner of the airport
-    if owner == status.username:
-        upgrade_level = SQL_functions.get_upgrade_status(status)
-        upgrade_choice = SQL_functions.check_owns_all_of_country(status)
-        # print(upgrade_choice)
-        if upgrade_choice:
-            if upgrade_level == 1:
-                print(
-                    f'This airport is upgraded. The price to sell this level is ${get_sell_price(status)}')
-            elif upgrade_level == 0:
-                print(
-                    f'This airport is at level {upgrade_level}, the price to upgrade is ${price_to_upgrade(status)} ,The price to sell airport is ${get_sell_price(status)}')
-            user_choice = input(f'Enter your choice: "s" for sell, "u" for upgrade, Enter to skip: ')
-            if user_choice.lower() == "u":
-                upgrade_airport(status)
-            elif user_choice.lower() == "s":
-                sell_airport(status)
-        elif not upgrade_choice:
-            print(f'The price to sell this level is ${get_sell_price(status)}')
-            user_choice = input(f'Enter your choice: "s" for sell, Enter to skip: ')
-            if user_choice.lower() == "s":
-                sell_airport(status)
-            else:
-                pass
-    elif owner == 'bank':
-        rent = airport_price * 0.5
-        temp_money = temp_money - rent
-        SQL_functions.modify_money(temp_money, status.session_id)
-        print(
-            f'Bank owns {colors.col.CYAN}{airport_name}{colors.col.END} and you need to pay rent to the bank at price of {colors.col.CYAN}${rent}{colors.col.END}. You currently have {temp_money} after paying the rent.')
-    else:
-        if temp_money > airport_price:
-            print(f'{airport_name} is available for purchase. Do you want to buy it? (Y/N)')
-            # userinput = input().upper()
-            # if userinput == 'Y':
-            #     buy_airport(status)
-            #     temp_money = SQL_functions.get_money(status.session_id)
-            #     SQL_functions.modify_money(temp_money, status.session_id)
-            #     print(f'You purchased {airport_name} from {country_name} at price of ${airport_price}. Game continues. ')
-            # elif userinput == 'N':
-            #     print("You choose to pass this airport without buying. Game continue.")
-            # else:
-            #     print("Invalid input. Game continues.")
-        else:
-            print("You can't afford this airport yet. You will continue the game.")
 
 def roll_and_move(status):
     dice_roll_1 = random.randint(1, 6)

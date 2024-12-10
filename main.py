@@ -111,20 +111,16 @@ def tori(param):
     for thing, value in game_state.items():
         setattr(status, thing, value)
     # code here:
-    try:
-        Game_functions.airport_cell(status, param)
+    Game_functions.airport_cell(status, param)
 
-        response = {
-            "money": status.money,
-            "position": status.position
-        }
-        setStatus(status)
+    response = {
+        "money": SQL_functions.get_money(status.session_id),
+        "position": status.position
+    }
+    setStatus(status)
 
-        return response
+    return response
 
-
-    except:
-        return {"status":400}
 
 ##### THIS BASICALLY HANDLES GAMEPLAY, SAME AS MAIN GAME FUNCTION !!!!!!!
 @app.route('/gameapi/move')

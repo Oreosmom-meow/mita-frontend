@@ -1,10 +1,19 @@
 'use strict';
 const startform = document.querySelector('#start-game');
 const statustext = document.querySelector('#status');
+document.querySelector('#upgrade-button').addEventListener('click', upgradeAirport);
+document.querySelector('#sell-button').addEventListener('click', sellAirport);
+document.querySelector('#buy-button').addEventListener('click', buyAirport);
+
+
 
 const playerimg = 'img/player.png'
 
 async function makeBoard(){
+	document.querySelector('#upgrade-button').style.display = 'none';
+	document.querySelector('#sell-button').style.display = 'none';
+	document.querySelector('#buy-button').style.display = 'none';
+
     try{
         const response = await fetch(`http://127.0.0.1:5000/gameapi/board`,{
             credentials: 'include'
@@ -57,6 +66,10 @@ function diceRoll(){
 }
 
 async function movePlayer(){
+	statustext.innerHTML = '';
+	document.querySelector('#upgrade-button').style.display = 'none';
+	document.querySelector('#sell-button').style.display = 'none';
+	document.querySelector('#buy-button').style.display = 'none';
     try{
         const response = await fetch(`http://127.0.0.1:5000/gameapi/move`,{
             credentials: 'include'
@@ -97,15 +110,16 @@ async function movePlayer(){
 				break;
 			case 'ownedyes':
 				// make upgrade and sell buttons visible
+				document.querySelector('#upgrade-button').style.display = 'block';
+				document.querySelector('#sell-button').style.display = 'block';
 				break;
 			case 'ownedno':
-				// make sell button visible
+				document.querySelector('#sell-button').style.display = 'block';
 				break;
 			case 'nono':
 				break;
 			case 'noyes':
-				/////// make buy button visible
-				//document.querySelector('#buy-button').style.display = 'block';
+				document.querySelector('#buy-button').style.display = 'block';
 				
 				break;
 			case 'bank':
@@ -150,6 +164,16 @@ async function movePlayer(){
 				jailProceedings();
 				break;
 
+			}
+			if (jsonData["bankrupt"]){
+				document.querySelector('#action-window').style.display = 'none';
+				document.querySelector('#bankrupt').style.display = 'block';
+				document.querySelector('#upgrade-button').style.display = 'none';
+				document.querySelector('#sell-button').style.display = 'none';
+				document.querySelector('#buy-button').style.display = 'none';
+				document.querySelector('#play-button').style.display = 'none';
+
+		
 		}
     } catch (error){
         console.log(error);
@@ -179,6 +203,7 @@ async function buyAirport(){
             credentials: 'include'
         });
         let jsonData = await response.json();
+		console.log(jsonData)
 		document.querySelector('#buy-button').style.display = 'none';
 		document.querySelector(`#cell_${jsonData['position']}_slot2`).src = 'img/owned.png';
 		document.querySelector('#player-money').innerHTML = `Money: ${jsonData['money']}`;
