@@ -1,22 +1,8 @@
 'use strict';
-
-// temp
-let player = {location: 1, money: 0}
-let username = '';
-let localsessionid = '';
-
 const startform = document.querySelector('#start-game');
 const statustext = document.querySelector('#status');
 
 const playerimg = 'img/player.png'
-
-if (localsessionid !== '' && localsessionid !== null){
-	nukeform.style.display = 'block';
-	loadform.style.display = 'block';
-}
-
-// sets player icon onto go space
-document.querySelector('[id="cell_1_player"]').src = playerimg;
 
 async function makeBoard(){
     try{
@@ -42,11 +28,8 @@ function startGame(){
 	document.querySelector('dialog').close();
 }
 
-
-
 // temp, hopefully. puts player in jail.
 function jailProceedings(){
-    player.location = 17;
     document.querySelector(`[id="cell_17_player"]`).src = 'img/cat_jail.png';
     document.querySelector('#action-window').style.display = 'none';
     document.querySelector('#jail-window').style.display = 'block';
@@ -101,7 +84,7 @@ async function movePlayer(){
 startform.addEventListener('submit', async function(event){
     event.preventDefault();
 
-    username = document.querySelector('input[name=username]').value;
+    let username = document.querySelector('input[name=username]').value;
     if (username !== ''){
         try{
             const response = await fetch(`http://127.0.0.1:5000/gameapi/start/${username}`,{
@@ -109,8 +92,6 @@ startform.addEventListener('submit', async function(event){
 			});
             const jsonData = await response.json();
 			console.log(jsonData.session_id)
-			localsessionid = jsonData.session_id;
-			localStorage.setItem('session_id', localsessionid);
             startGame();
         } catch (error){
             console.log(error);
@@ -121,20 +102,5 @@ startform.addEventListener('submit', async function(event){
     }
 });
 
-statustext.addEventListener('click', async function(event) {
-	try{
-		const response = await fetch('http://127.0.0.1:5000/gameapi/play',{
-				credentials: 'include'
-			  });
-		const jsonData = await response.json();
-		console.log(jsonData);
-	} catch (error){
-		console.log(error);
-	}
-});
-
 let playbutton = document.querySelector('#play-button');
 playbutton.addEventListener('click', movePlayer);
-
-// test for movement
-//playbutton.addEventListener('click', (event) => advancePlayer(diceRoll()));

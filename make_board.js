@@ -76,6 +76,7 @@ let chance3 = document.createElement('p');
 chance3.innerHTML = 'CHANCE';
 document.querySelector(`[id='22']`).appendChild(chance3);
 
+
 // for (let i = 1; i < 23; i++){
 //     let cell = document.querySelector(`[id='${i}']`);
 //     let mpt = document.createElement('img');
@@ -102,5 +103,7 @@ for (let i = 1; i < 23; i++){
 let jail_cell = document.querySelector('[id="cell_17_player"]');
 jail_cell.alt = "jail cell";
 jail_cell.src = "img/ironbar.png";    
+
+document.querySelector('[id="cell_1_player"]').src = 'img/player.png';
 
 document.querySelector('dialog').showModal();
