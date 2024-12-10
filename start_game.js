@@ -19,21 +19,21 @@ if (localsessionid !== '' && localsessionid !== null){
 document.querySelector('[id="cell_1_player"]').src = playerimg;
 
 async function makeBoard(){
-    let jsonData;
     try{
         const response = await fetch(`http://127.0.0.1:5000/gameapi/board`,{
             credentials: 'include'
         });
-        jsonData = await response.json();
+        let jsonData = await response.json();
+        let airportArray = jsonData["airport_array"];
+        let money = jsonData["money"];
+        for (let airport of airportArray){
+            let airport_text = document.querySelector(`[id='cell_${airport.board_id}_text']`);
+            airport_text.innerHTML = `${airport.name}<br><br>Price: ${airport.price}`;
+        }
+        document.querySelector('#player-money').innerHTML = `money: ${money}`;
     } catch (error){
         console.log(error);
-    }
-    console.log(jsonData);
-    for (let i of jsonData){
-        let airport_text = document.querySelector(`[id='cell_${i.board_id}_text']`);
-        airport_text.innerHTML = `${i.name}<br><br>Price: ${i.price}`;
-    }
-}
+    }}
 
 function startGame(){
 	// actually start game
@@ -67,34 +67,30 @@ function diceRoll(){
     return roll;
 }
 
-// moves the player icon forward and handles putting them into jail
-// should move actual logic to flask and only use this for movement?
-// or handle all movement in flask and just use returned values to move player separately?
-function advancePlayer(step){
-    let currentlocation = player.location;
-    let oldlocation = currentlocation;
-    currentlocation += step;
-    if (currentlocation > 22){
-        let round = parseInt(document.querySelector('[id="current-round"]').innerHTML);
-        round++;
-        document.querySelector('[id="current-round"]').innerHTML = round;
-        currentlocation -= 22;
-    }
-    player.location = currentlocation;
+async function movePlayer(){
+    try{
+        const response = await fetch(`http://127.0.0.1:5000/gameapi/move`,{
+            credentials: 'include'
+        });
+        let jsonData = await response.json();
+        console.log(jsonData);
+        let startposition = jsonData["start_position"];
+        let endposition = jsonData["end_position"];
 
+        if (startposition != 17){
+            document.querySelector(`[id="cell_${startposition}_player"]`).src = 'img/empty_image_dumb.png';
+        } else {
+            document.querySelector(`[id="cell_17_player"]`).src = 'img/ironbar.png';
+        }
+        document.querySelector(`[id="cell_${endposition}_player"]`).src = playerimg;
 
-    
-    if (oldlocation != 17){
-        document.querySelector(`[id="cell_${oldlocation}_player"]`).src = 'img/empty_image_dumb.png';
-    } else {
-        document.querySelector(`[id="cell_17_player"]`).src = 'img/ironbar.png';
-    }
-
-
-    if (currentlocation == 6){
-        jailProceedings();
-    } else {    
-        document.querySelector(`[id="cell_${currentlocation}_player"]`).src = playerimg;
+        let currentround = document.querySelector('#current-round');
+        let tempRound = parseInt(currentround.innerHTML);
+        if (jsonData["round"] != tempRound){
+            currentround.innerHTML = jsonData["round"]
+        }
+    } catch (error){
+        console.log(error);
     }
 }
 
@@ -134,6 +130,8 @@ statustext.addEventListener('click', async function(event) {
 	}
 });
 
-// test for movement
 let playbutton = document.querySelector('#play-button');
-playbutton.addEventListener('click', (event) => advancePlayer(diceRoll()));
+playbutton.addEventListener('click', movePlayer);
+
+// test for movement
+//playbutton.addEventListener('click', (event) => advancePlayer(diceRoll()));

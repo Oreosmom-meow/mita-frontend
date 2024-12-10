@@ -21,20 +21,36 @@ class GameState:
 # get connection time
 connector.print_connection_time()
 
+# set session game status?
+def setStatus(status):
+    session['game_state'] = {
+        "rounds": status.rounds,
+        "doubles": status.doubles,
+        "jail_card": status.jail_card,
+        "jail_counter": status.jail_counter,
+        "jailed": status.jailed,
+        "username": status.username,
+        "position": status.position,
+        "session_id": status.session_id,
+        "score": status.score
+    }
+
 # GAME SETUP USING FLASK SESSIONS, START CREATES THE SESSION, PLAY SHOWS HOW TO RE-INITIALIZE SESSION WHEN DOING ANY FUNCTION
 app = Flask(__name__)
 app.secret_key = "secret key"
 CORS(app, supports_credentials=True)
 app.config.update({
-    'SESSION_COOKIE_SECURE': False,          # Set True for HTTPS
+    'SESSION_COOKIE_SECURE': False,
     'SESSION_COOKIE_DOMAIN': '127.0.0.1',
     'SESSION_COOKIE_PATH': '/',
-
+    'SESSION_COOKIE_SAMESITE': 'lax',
 })
+
 @app.route('/gameapi/start/<username>')
 def start(username):
     status = GameState()
     status.username = username
+    status.position = 1
     Game_functions.check_username(status)
 
     #set up session specific board
@@ -56,6 +72,7 @@ def start(username):
 		"session_id": status.session_id,
 		"status": 200
 	}
+
 @app.route('/gameapi/play')
 def play():
     # game state session, dont touch
@@ -64,7 +81,7 @@ def play():
     for thing, value in game_state.items():
         setattr(status, thing, value)
     # code here:
-    return {"session_id":status.session_id}
+    return {"status":200,"session_id":status.session_id}
 
 @app.route('/gameapi/board')
 def board():
@@ -74,9 +91,41 @@ def board():
     for thing, value in game_state.items():
         setattr(status, thing, value)
     # code here:
-    board_airports = SQL_functions.get_airports_while_dreaming(status.session_id)
-    return board_airports
+    try:
+        board_airports = SQL_functions.get_airports_while_dreaming(status.session_id)
+        money = SQL_functions.get_money(status.session_id)
+        response = {
+            "airport_array": board_airports,
+            "money": money,
+            "status": 200
+        }
+        return response
+    except:
+        return {"status":400}
 
+##### THIS BASICALLY HANDLES GAMEPLAY, SAME AS MAIN GAME FUNCTION !!!!!!!
+@app.route('/gameapi/move')
+def move():
+    # game state session, dont touch
+    game_state = session.get('game_state')
+    status = GameState()
+    for thing, value in game_state.items():
+        setattr(status, thing, value)
+    # code here:
+    try:
+        start_position = status.position
+        print(start_position)
+        r1, r2, status = Game_functions.roll_and_move(status)
+        response = {
+            "start_position": start_position,
+            "end_position": status.position,
+            "round": status.rounds,
+            "status": 200
+        }
+        setStatus(status)
+        return response
+    except:
+        return {"status":400}
 
 @app.errorhandler(404)
 def page_not_found(error_code):
