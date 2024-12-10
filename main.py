@@ -91,13 +91,12 @@ def board():
     for thing, value in game_state.items():
         setattr(status, thing, value)
     # code here:
-    print("step 1")
     board_airports = SQL_functions.get_airports_while_dreaming(status.session_id)
-    print("step 2")
+    bank_airports = SQL_functions.get_all_bank_owned_airport(status.session_id)
     money = SQL_functions.get_money(status.session_id)
-    print("step 3")
     response = {
         "airport_array": board_airports,
+        "bank_array": bank_airports,
         "money": money,
         "status": 200
     }
@@ -115,18 +114,56 @@ def move():
     # code here:
     try:
         start_position = status.position
-        print(start_position)
+        start_money = SQL_functions.get_money(status.session_id)
+        oldrounds = status.rounds
         r1, r2, status = Game_functions.roll_and_move(status)
-        total = r1 + r2
-        response = {
-            "total": total,
-            "start_position": start_position,
-            "end_position": status.position,
-            "round": status.rounds,
-            "status": 200
-        }
-        setStatus(status)
-        return response
+        newrounds = status.rounds
+
+        if newrounds > 20:
+            break
+
+        else:
+            total = r1 + r2
+            if Game_functions.check_if_double(r1, r2, status):
+                status.doubles += 1
+            else:
+                status.doubles = 0
+
+            if status.doubles >= 2:
+                status.jailed = True
+                status.doubles = 0
+            else:
+                temp_type_id = SQL_functions.get_type_id(status.position)
+                # airport cell
+                if temp_type_id == 1:
+                    id = Game_functions.airport_cell(status)
+                # Other cells
+                elif temp_type_id == 2:
+                    id = Game_functions.chance_card(status)
+                elif temp_type_id == 3:
+                    id = Game_functions.go_to_jail(status)
+                elif temp_type_id == 4:
+                    id = Game_functions.income_tax(status.session_id)
+                elif temp_type_id == 5:
+                    id = Game_functions.luxury_tax(status.session_id)
+
+            end_money = SQL_functions.get_money(status.session_id)
+            if newrounds > oldrounds:
+                Game_functions.salary(status)
+
+            response = {
+                "start_money": start_money,
+                "end_money": end_money,
+                "money": SQL_functions.get_money(status.session_id),
+                "id": id,
+                "total": total,
+                "start_position": start_position,
+                "end_position": status.position,
+                "round": status.rounds,
+                "status": 200
+            }
+            setStatus(status)
+            return response
     except:
         return {"status":400}
 
@@ -163,25 +200,26 @@ if __name__ == '__main__':
 #             if Game_functions.check_if_double(dice_roll_1, dice_roll_2, status):
 #                 status.doubles += 1
 #             else:
-#                 if status.doubles >= 2:
-#                     Game_functions.roll_double(status)
-#                     Game_functions.jail_event(status)
-#                 else:
-#                     status.doubles = 0
-#                     temp_type_id = SQL_functions.get_type_id(status.position)
-#                     # Non-functional cells
-#                     if temp_type_id == 0:
-#                         Game_functions.non_functional_cell(status)
-#                     # airport cell
-#                     elif temp_type_id == 1:
-#                         Game_functions.airport_cell(status)
-#                     # Other cells
-#                     elif temp_type_id == 2:
-#                         Game_functions.chance_card(status)
-#                     elif temp_type_id == 3:
-#                         Game_functions.go_to_jail(status)
-#                     elif temp_type_id == 4:
-#                         Game_functions.income_tax(status.session_id)
-#                     elif temp_type_id == 5:
-#                         Game_functions.luxury_tax(status.session_id)
+#                 status.doubles = 0
+                
+#             if status.doubles >= 2:
+#                 Game_functions.roll_double(status)
+#                 Game_functions.jail_event(status)
+#             else:
+#                 temp_type_id = SQL_functions.get_type_id(status.position)
+#                 # Non-functional cells
+#                 if temp_type_id == 0:
+#                     Game_functions.non_functional_cell(status)
+#                 # airport cell
+#                 elif temp_type_id == 1:
+#                     Game_functions.airport_cell(status)
+#                 # Other cells
+#                 elif temp_type_id == 2:
+#                     Game_functions.chance_card(status)
+#                 elif temp_type_id == 3:
+#                     Game_functions.go_to_jail(status)
+#                 elif temp_type_id == 4:
+#                     Game_functions.income_tax(status.session_id)
+#                 elif temp_type_id == 5:
+#                     Game_functions.luxury_tax(status.session_id)
 #wininig of game

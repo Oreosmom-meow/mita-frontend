@@ -9,21 +9,18 @@ def dice_roll(): # iida
     return dice
 
 def income_tax(session_id): # iida
-    input(f'You have landed on income tax cell. Press any key to continue. ')
     money = SQL_functions.get_money(session_id)
     temp_money = money
     money -= round(50 + money * 0.25)
     SQL_functions.modify_money(money,session_id)
-    print(f'{colors.col.BOLD}{colors.col.YELLOW}Income tax!', f'You paid {temp_money - money} in taxes.\nYou have ${money} left.', f'{colors.col.END}')
+    return "income_tax"
 
 def luxury_tax(session_id): # iida
-    input(f'You have landed on luxury tax cell. Press any key to continue.')
     money = SQL_functions.get_money(session_id)
     temp_money = money
     money -= round(100 + money * 0.5)
     SQL_functions.modify_money(money,session_id)
-    print(f'{colors.col.BOLD}{colors.col.YELLOW}Luxury tax!', f'You paid ${temp_money - money} in taxes.\n', f'{colors.col.END}')
-
+    return "luxury_tax"
 
 def print_in_jail_message(status):
     money = SQL_functions.get_money(status.session_id)
@@ -178,7 +175,6 @@ def price_to_upgrade(status):
     return temp_money
 
 def chance_card(status): # yutong
-    input(f'You have landed on chance cell. You will randomly select a card from the deck. Press any key to continue.')
     card_id = random.randint(1, 10)
     temp_money = SQL_functions.get_money(status.session_id)
     if card_id == 1:
@@ -221,7 +217,7 @@ def chance_card(status): # yutong
         temp_money = SQL_functions.get_money(status.session_id) - 50
         print(f'You picked card: Elected as chairman of the board. You need to pay $50 to the bank.')
         SQL_functions.modify_money(temp_money,status.session_id)
-    return status.position
+    return card_id
 
 def bankrupt(session_id):
     print(f'😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵')
@@ -302,21 +298,14 @@ def print_high_score(status):
     SQL_functions.clear_tables(status.session_id)
 
 def go_to_jail(status):
-    input(f'You will be sent to jail immediately. :)) Press any key to continue.')
     status.jailed = True
     status.position = 17
-
-def roll_double(status):
-    print(f'{colors.col.BOLD}{colors.col.RED}You have been jailed 🧱 for rolling doubles twice in a row.{colors.col.END}')
-    status.jailed = True
-    status.doubles = 0
 
 def dice_roll_result(dice_roll_1,dice_roll_2,status):
     print(f'You rolled 🎲:', f'{dice_roll_1}, {dice_roll_2}', f'| {colors.col.PINK}You moved to cell number:',f'{status.position}{colors.col.END}')
 
 def rounds_up(status):
     print(f'You finished one round of the game. Now rounds + 1. Position starts from 0.')
-    salary(status)
     status.rounds += 1
     status.position = status.position - 21
 
@@ -325,8 +314,6 @@ def airport_cell(status):
     country_name = SQL_functions.get_country_name(status)
     airport_name = SQL_functions.get_airport_name(status)
     temp_money = SQL_functions.get_money(status.session_id)
-    input(
-        f'You have landed on {colors.col.BOLD}{colors.col.CYAN}{airport_name}{colors.col.END} from {colors.col.BOLD}{colors.col.CYAN}{country_name}{colors.col.END}. The airport price is {colors.col.CYAN}${airport_price}{colors.col.END}. Press any key to continue.')
     owner = SQL_functions.check_airport_owner(status)
     # first check the owner of the airport
     if owner == status.username:
@@ -367,28 +354,18 @@ def airport_cell(status):
     else:
         if temp_money > airport_price:
             print(f'{airport_name} is available for purchase. Do you want to buy it? (Y/N)')
-            userinput = input().upper()
-            if userinput == 'Y':
-                buy_airport(status)
-                temp_money = SQL_functions.get_money(status.session_id)
-                SQL_functions.modify_money(temp_money, status.session_id)
-                print(f'You purchased {airport_name} from {country_name} at price of ${airport_price}. Game continues. ')
-            elif userinput == 'N':
-                print("You choose to pass this airport without buying. Game continue.")
-            else:
-                print("Invalid input. Game continues.")
+            # userinput = input().upper()
+            # if userinput == 'Y':
+            #     buy_airport(status)
+            #     temp_money = SQL_functions.get_money(status.session_id)
+            #     SQL_functions.modify_money(temp_money, status.session_id)
+            #     print(f'You purchased {airport_name} from {country_name} at price of ${airport_price}. Game continues. ')
+            # elif userinput == 'N':
+            #     print("You choose to pass this airport without buying. Game continue.")
+            # else:
+            #     print("Invalid input. Game continues.")
         else:
             print("You can't afford this airport yet. You will continue the game.")
-
-def non_functional_cell(status):
-    if status.position == 1 and status.rounds != 1:
-        print(f'You have landed on Go cell. You will get $200 from the bank.')
-    elif status.position == 1 and round == 1:
-        print(f'You have started the game from GO cell.')
-    elif status.position == 12:
-        print(f'You have landed on Free Parking cell. You will pass.')
-    elif status.position == 17:
-        print(f'You have landed on Jail. You will pass.')
 
 def roll_and_move(status):
     dice_roll_1 = random.randint(1, 6)

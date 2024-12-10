@@ -16,6 +16,12 @@ async function makeBoard(){
             let airport_text = document.querySelector(`[id='cell_${airport.board_id}_text']`);
             airport_text.innerHTML = `${airport.name}<br>Price: ${airport.price}`;
         }
+		let bankArray = jsonData["bank_array"];
+		for (let airport of bankArray){
+			let bank_owned = document.querySelector(`[id='cell_${airport[0]}_slot2']`);
+			bank_owned.src = 'img/bank_owned.png'
+		}
+
         document.querySelector('#player-money').innerHTML = `money: ${money}`;
     } catch (error){
         console.log(error);
@@ -59,7 +65,7 @@ async function movePlayer(){
         console.log(jsonData);
         let startposition = jsonData["start_position"];
         let endposition = jsonData["end_position"];
-		let total = jsonData["total"]
+		let total = jsonData["total"];
 
         if (startposition != 17){
             document.querySelector(`[id="cell_${startposition}_player"]`).src = 'img/empty_image_dumb.png';
@@ -68,13 +74,73 @@ async function movePlayer(){
         }
         document.querySelector(`[id="cell_${endposition}_player"]`).src = playerimg;
 
-		document.querySelector('#roll-value').innerHTML = `you rolled: ${total}`
+		document.querySelector('#roll-value').innerHTML = `you rolled: ${total}`;
 
         let currentround = document.querySelector('#current-round');
         let tempRound = parseInt(currentround.innerHTML);
         if (jsonData["round"] != tempRound){
-            currentround.innerHTML = jsonData["round"]
+            currentround.innerHTML = jsonData["round"];
         }
+
+		let start_money = jsonData["start_money"];
+		let end_money = jsonData["end_money"];
+		let money = jsonData["money"];
+
+		document.querySelector('#player-money').innerHTML = `money: ${money}`;
+
+		let id = jsonData["id"];
+	console.log(id);
+
+		switch(id){
+			case 'ownedyes':
+				break;
+			case 'ownedno':
+				break;
+			case 'not':
+				break;
+			case 'bank':
+				break;
+			case 1:
+				statustext.innerHTML = 'You picked card: Advance to "Go". You will get $200. Congratulations.';
+				break;
+			case 2:
+				statustext.innerHTML = 'You picked card: Get out of jail. You can use it once when you are in jail.';
+				break;
+			case 3:
+				statustext.innerHTML = 'You picked card: Go to jail. You will be moved to jail immediately.';
+				break;
+			case 4:
+				statustext.innerHTML = 'You picked card: Bank pays you 50! You will get $50 from the bank, congratulations!';
+				break;
+			case 5:
+				statustext.innerHTML = `You picked card: Pay repair fee for all properties. You need to pay $25 for all airports you own, $50 for all the upgraded airports you own. You need to pay in total ${start_money-end_money}.`
+				break;
+			case 6:
+				statustext.innerHTML = 'You picked card: Doctor fee. You need to pay $50 to the doctor.';
+				break;
+			case 7:
+				statustext.innerHTML = 'You picked card: Grand opening night. You will get $50 from the bank. Congratulations.';
+				break;
+			case 8:
+				statustext.innerHTML = 'You picked card: School fee. You need to pay $50 to the school.';
+				break;
+			case 9:
+				statustext.innerHTML = 'You picked card: Receive consultancy fee. You will get $25 from the bank. Congratulations.';
+				break;
+			case 10:
+				statustext.innerHTML = 'You picked card: Elected as chairman of the board. You need to pay $50 to the bank.';
+				break;
+			case 'income_tax':
+				statustext.innerHTML = `You have landed on income tax cell. You paid ${start_money-end_money}`;
+				break;
+			case 'luxury_tax':
+				statustext.innerHTML = `You have landed on luxury tax cell. You paid ${start_money-end_money}`;
+				break;
+			case 'jail':
+				jailProceedings();
+				break;
+
+		}
     } catch (error){
         console.log(error);
     }

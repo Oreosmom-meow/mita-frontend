@@ -36,11 +36,13 @@ def set_board_airports(session_id):
             if len(airport_result_temp) == 3:
                 counter += 1
                 for airport in airport_result_temp:
-                    airport_result.append(airport)
+                    temp = (airport[0], row[0])
+                    airport_result.append(temp)
         if counter == 4:
             success = True
+
     for airport in airport_result:
-        sql = f'INSERT INTO player_property (airport_id, country_id, session_id, board_id) VALUES ("{airport[0]}", "{row[0]}", {session_id}, {airportnumbers[i]});'
+        sql = f'INSERT INTO player_property (airport_id, country_id, session_id, board_id) VALUES ("{airport[0]}", "{airport[1]}", {session_id}, {airportnumbers[i]});'
         cursor = connector.connection.cursor()
         cursor.execute(sql)
         i += 1
@@ -58,10 +60,12 @@ def set_player_property(session_id):
         cursor.execute(insert)
         i += 1
     random_airport = random.choice(airportnumbers)
-    select_country = f"select board_id from player_property where country_id in (select country_id from player_property where board_id = {random_airport}) and session_id = {session_id};"
+    select_country = f"select board_id from player_property where country_id in (select country_id from player_property where board_id = {random_airport} and session_id = {session_id}) and session_id = {session_id};"
+    print(random_airport)
     cursor = connector.connection.cursor()
     cursor.execute(select_country)
     country_result = cursor.fetchall()
+    print(country_result)
     for row in country_result:
         update_bank = f"update player_property set ownership = 'bank' where board_id = {row[0]} and session_id = {session_id};"
         cursor = connector.connection.cursor()
@@ -150,7 +154,6 @@ def get_airports_while_dreaming(session_id): #ChatGPT
     cursor = connector.connection.cursor()
     cursor.execute(sql)
     result = cursor.fetchall()
-    print(result)
     for i in range(0,12):
         thing = {
             "board_id": airportnumbers[i],
@@ -199,6 +202,13 @@ def get_all_owned_airport(session_id,username):
         for row in result:
             airport_number = row[0]
     return airport_number
+
+def get_all_bank_owned_airport(session_id):
+    sql = f"select board_id from player_property where session_id = {session_id} and ownership = 'bank';"
+    cursor = connector.connection.cursor()
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    return result
 
 def get_upgraded_airport_number(session_id):
     sql = f"select COUNT(ownership) from player_property where session_id = {session_id} and upgrade_status > 0"
