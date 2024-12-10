@@ -73,6 +73,18 @@ form {
     padding-top: 1vh ;
 }
 
+.bankrupt {
+    display: none;
+    position: absolute;
+    right: 0;
+    width: 40vh;
+    height: 80%;
+    border: 10px solid red;
+    background-color: white;
+    padding: 3vh;
+    padding-top: 1vh ;
+}
+
 .jail-window img{
     max-width: 50%;
 }

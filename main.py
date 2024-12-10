@@ -113,6 +113,7 @@ def move():
         setattr(status, thing, value)
     # code here:
     try:
+        bankrupt = False
         start_position = status.position
         start_money = SQL_functions.get_money(status.session_id)
         oldrounds = status.rounds
@@ -151,7 +152,11 @@ def move():
             if newrounds > oldrounds:
                 Game_functions.salary(status)
 
+            if SQL_functions.get_money(status.session_id) <= 0:
+                bankrupt = True
+
             response = {
+                "bankrupt": bankrupt,
                 "start_money": start_money,
                 "end_money": end_money,
                 "money": SQL_functions.get_money(status.session_id),
