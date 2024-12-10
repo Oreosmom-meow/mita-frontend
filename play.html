@@ -9,14 +9,21 @@
     <script src="start_game.js" defer></script></head>
 <body>	
     <div class="action-window" id="action-window">
-        <h1>ROUND</h1>
-        <h1 id="current-round">1</h1>
-        <img src="img/dice.png" alt="dice" id="play-button">
-        <p id="roll-value">you rolled: nothing yet</p>
+        <div class="game-status-containder">
+            <p class="container-title">Game status</p>
+            <p>Round: </p>
+            <p id="current-round">1</p>
+            <p id="roll-value">Dice rolled: </p>
+            <p id="player-money">Money: </p>
+        </div>
+        <div class="roll-dice-button" id="play-button">Roll the dice</div>
 		<br>
-        <p id="status">current status: unpleasant</p>
+        <div class="game-status-containder">
+            <p class="container-title">Game message</p>
+            <p id="status">current status: unpleasant</p>
+        </div>
+        
         <br>
-        <p id="player-money">money: not implemented</p>
         <p></p>
         <p></p>
         <p></p>
@@ -64,8 +71,7 @@
 
     <div id="board" class="board">
         <img src="img/character-img.png" class="monopoly-character">
-        <div class="roll-dice-button" >Roll the dice</div>
-
+        <h2 class="game-title">Monopoly in The Air</h2>
     </div>
 </body>
 </html>

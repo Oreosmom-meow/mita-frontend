@@ -1,7 +1,6 @@
 'use strict';
 const startform = document.querySelector('#start-game');
 const statustext = document.querySelector('#status');
-let username = '';
 
 const playerimg = 'img/player.png'
 
@@ -23,7 +22,7 @@ async function makeBoard(){
 			bank_owned.src = 'img/bank_owned.png'
 		}
 
-        document.querySelector('#player-money').innerHTML = `money: $${money}`;
+        document.querySelector('#player-money').innerHTML = `Money: ${money}`;
     } catch (error){
         console.log(error);
     }}
@@ -53,12 +52,11 @@ function jailProceedings(){
 // actual roll should be in the flask
 function diceRoll(){
     let roll = (Math.floor(Math.random()*6) + 1) + (Math.floor(Math.random()*6) + 1);
-    document.querySelector('#roll-value').innerHTML = `you rolled: ${roll}`;
+    document.querySelector('#roll-value').innerHTML = `Dice rolled:: ${roll}`;
     return roll;
 }
 
 async function movePlayer(){
-	statustext.innerHTML = '';
     try{
         const response = await fetch(`http://127.0.0.1:5000/gameapi/move`,{
             credentials: 'include'
@@ -76,7 +74,7 @@ async function movePlayer(){
         }
         document.querySelector(`[id="cell_${endposition}_player"]`).src = playerimg;
 
-		document.querySelector('#roll-value').innerHTML = `you rolled: ${total}`;
+		document.querySelector('#roll-value').innerHTML = `Dice rolled: ${total}`;
 
         let currentround = document.querySelector('#current-round');
         let tempRound = parseInt(currentround.innerHTML);
@@ -88,7 +86,7 @@ async function movePlayer(){
 		let end_money = jsonData["end_money"];
 		let money = jsonData["money"];
 
-		document.querySelector('#player-money').innerHTML = `money: $${money}`;
+		document.querySelector('#player-money').innerHTML = `Money: ${money}`;
 
 		let id = jsonData["id"];
 	console.log(id);
@@ -115,7 +113,7 @@ async function movePlayer(){
 				statustext.innerHTML = 'You picked card: Bank pays you 50! You will get $50 from the bank, congratulations!';
 				break;
 			case 5:
-				statustext.innerHTML = `You picked card: Pay repair fee for all properties. You need to pay $25 for all airports you own, $50 for all the upgraded airports you own. You need to pay in total $${start_money-end_money}.`
+				statustext.innerHTML = `You picked card: Pay repair fee for all properties. You need to pay $25 for all airports you own, $50 for all the upgraded airports you own. You need to pay in total ${start_money-end_money}.`
 				break;
 			case 6:
 				statustext.innerHTML = 'You picked card: Doctor fee. You need to pay $50 to the doctor.';
@@ -133,20 +131,16 @@ async function movePlayer(){
 				statustext.innerHTML = 'You picked card: Elected as chairman of the board. You need to pay $50 to the bank.';
 				break;
 			case 'income_tax':
-				statustext.innerHTML = `You have landed on income tax cell. You paid $${start_money-end_money}`;
+				statustext.innerHTML = `You have landed on income tax cell. You paid ${start_money-end_money}`;
 				break;
 			case 'luxury_tax':
-				statustext.innerHTML = `You have landed on luxury tax cell. You paid $${start_money-end_money}`;
+				statustext.innerHTML = `You have landed on luxury tax cell. You paid ${start_money-end_money}`;
 				break;
 			case 'jail':
 				jailProceedings();
 				break;
 
 		}
-		if (jsonData['bankrupt']){
-			document.querySelector('#action-window').style.display = 'none';
-			document.querySelector('#bankrupt').style.display = 'block';
-			}
     } catch (error){
         console.log(error);
     }
@@ -156,7 +150,7 @@ async function movePlayer(){
 startform.addEventListener('submit', async function(event){
     event.preventDefault();
 
-    username = document.querySelector('input[name=username]').value;
+    let username = document.querySelector('input[name=username]').value;
     if (username !== ''){
         try{
             const response = await fetch(`http://127.0.0.1:5000/gameapi/start/${username}`,{
