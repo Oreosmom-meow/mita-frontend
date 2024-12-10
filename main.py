@@ -69,9 +69,9 @@ def start(username):
         "score": status.score
     }
     return {
-		"session_id": status.session_id,
-		"status": 200
-	}
+        "session_id": status.session_id,
+        "status": 200
+    }
 
 @app.route('/gameapi/play')
 def play():

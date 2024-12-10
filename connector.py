@@ -4,7 +4,7 @@ import time
 
 connectionstart = time.time()
 connection = mysql.connector.connect(
-    user="root",
+    user="yutongd",
     password="12345",
     host="mysql.metropolia.fi",
     port=3306,
