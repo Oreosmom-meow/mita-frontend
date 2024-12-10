@@ -1,0 +1,88 @@
+body {
+    font-family: 'Noto sans', sans-serif;
+    font-size: 2vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f5f5f5;
+}
+
+form {
+    flex-direction: column;
+    text-align: center;
+    margin: 10px;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 2px;
+    height: 95vh;
+    width: 95vh;
+    margin: auto;
+    margin-top: 1vh;
+    background-color: #ffffff;
+    border: 2px solid #000;
+}
+
+.board img{
+    width: 50%;
+    height: 100%;
+    border: none;
+    outline: none;
+}
+
+.space {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5vh;
+    text-align: center;
+    border: 1px solid #000;
+    background-color: #eaeaea;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+	box-sizing: border-box;
+}
+.action-window {
+    position: absolute;
+    right: 0;
+    width: 40vh;
+    height: 80%;
+    border: 2px solid green;
+    background-color: white;
+    padding: 3vh;
+    padding-top: 1vh;
+  }
+
+.jail-window {
+    display: none;
+    position: absolute;
+    right: 0;
+    width: 40vh;
+    height: 80%;
+    border: 2px solid red;
+    background-color: white;
+    padding: 3vh;
+    padding-top: 1vh ;
+}
+
+.jail-window img{
+    max-width: 50%;
+}
+
+.start-game{
+	display: block;
+}
+
+.load-game{
+	display: none;
+}
+
+.delete-save{
+	display: none;;
+}

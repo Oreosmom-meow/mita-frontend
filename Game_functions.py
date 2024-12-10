@@ -51,50 +51,35 @@ def release(status):
     status.jailed = False
     status.jail_counter = 0
 
-def jail_event(status): # iida
-    #jailcard = SQL_functions.check_jail_card(status.session_id)
-    print_in_jail_message(status)
-    while status.jailed:
-        choice = input('Enter your choice: ')
-        if choice != '1' and choice != '2' and choice != '3':
-            print('Try again, use "1", "2", or "3" to choose.')
-        elif 1 > int(choice) < 3:
-            print('Try again, use "1", "2", or "3" to choose.')
+def jail_event(status, choice): # iida
+    if choice == '1':
+        dice_roll_1 = dice_roll()
+        dice_roll_2 = dice_roll()
+        #print(f'You rolled {dice_roll_1} and {dice_roll_2}')
+        status.rounds += 1
+        if status.jail_counter > 2:
+            #print(f'{colors.col.GREEN}You have been automatically released after 3 attempts. Game continues.{colors.col.END}')
+            release(status)
         else:
-            if choice == '1':
-                dice_roll_1 = dice_roll()
-                dice_roll_2 = dice_roll()
-                print(f'You rolled {dice_roll_1} and {dice_roll_2}')
-                status.rounds += 1
-                if status.jail_counter > 2:
-                    print(
-                        f'{colors.col.GREEN}You have been automatically released after 3 attempts. Game continues.{colors.col.END}')
-                    release(status)
-                else:
-                    if not check_if_double(dice_roll_1, dice_roll_2, status):
-                        status.jail_counter += 1
-                        print(f'{colors.col.BOLD}{colors.col.RED}Failed to roll a double. Still in jail.',
-                              f'{colors.col.END}')
-                    else:
-                        print(
-                            f'{colors.col.BOLD}{colors.col.GREEN}You have been released for rolling a double.' + f'{colors.col.END}')
-                        release(status)
-            elif choice == '2':
+            if not check_if_double(dice_roll_1, dice_roll_2, status):
+                status.jail_counter += 1
+                #print(f'{colors.col.BOLD}{colors.col.RED}Failed to roll a double. Still in jail.', f'{colors.col.END}')
+            else:
+                #print(f'{colors.col.BOLD}{colors.col.GREEN}You have been released for rolling a double.' + f'{colors.col.END}')
+                release(status)
+    elif choice == '2':
                 money = SQL_functions.get_money(status.session_id)
                 money -= 200
                 SQL_functions.modify_money(money, status.session_id)
-                print(
-                    f'{colors.col.BOLD}{colors.col.GREEN} You have spent 200 to be released, you currently have ${money} left.',
-                    f'{colors.col.END}')
+                #print(f'{colors.col.BOLD}{colors.col.GREEN} You have spent 200 to be released, you currently have ${money} left.',f'{colors.col.END}')
                 release(status)
-            else:
-                if status.jail_card > 0:
-                    print('bee(the insect) free!')
-                    release(status)
-                    status.jailcard -= 1
-                    SQL_functions.modify_out_of_jail_card(status.jailcard, status.session_id)
-                else:
-                    print("You don't have card to use")
+    else:
+        if status.jail_card > 0:
+            release(status)
+            status.jailcard -= 1
+            SQL_functions.modify_out_of_jail_card(status.jailcard, status.session_id)
+        else:
+            print("You don't have card to use")
 
 def salary(status): # iida
     money = SQL_functions.get_money(status.session_id)

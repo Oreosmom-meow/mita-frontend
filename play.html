@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+    <script src="make_board.js" defer></script>
+    <script src="start_game.js" defer></script>
+</head>
+<body>
+    <div class="action-window" id="action-window">
+        <h1>ROUND</h1>
+        <h1 id="current-round">1</h1>
+        <img src="img/dice.png" alt="dice" id="play-button">
+        <p id="roll-value">you rolled: nothing yet</p>
+		<br>
+        <p id="status">current status: unpleasant</p>
+        <br>
+        <p id="player-money">money: not implemented</p>
+        <p></p>
+        <p></p>
+        <p></p>
+        <p></p>
+    </div>
+
+    <div class="jail-window" id="jail-window">
+        <h1>YOU ARE IN JAIL</h1>
+
+        <p>roll the dice and get doubles to get out</p>
+        <img src="img/dice.png" alt="dice" id="jail-dice-button">
+
+        <p>pay 200 to get out</p>
+        <img src="img/mono-money.png" alt="pile of monopoly money" id="jail-money-button">
+        <h6>current money: not implemented</h6>
+
+        <p>use 'get out of jail free' card</p>
+        <img src="img/get-out-card.jpg" alt?="get out of jail free card" id="jail-card-button">
+    </div>
+
+    <dialog>
+        <form id="start-game">
+            <h2>welcome to</h2>
+            <h1>MONOPOLY IN THE AIR</h1>
+            <p id="start-info"></p>
+            <input name="username" type="text" placeholder="Enter your username...">
+            <br>
+            <input name="submit" type="submit" value="Start game">
+			<br>
+			<p>This website uses cookies.</p>
+        </form>
+		<form class="load-game" id="load-game">
+			<input name="submit" type="submit" value="Load game">
+		</form>
+		<form class="delete-save" id="delete-save">
+			<input name="submit" type="submit" value="Delete save">
+		</form>
+    </dialog>
+
+    <div id="board" class="board">
+    </div>
+</body>
+</html>
