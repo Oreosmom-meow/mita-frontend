@@ -5,10 +5,8 @@ import time
 connectionstart = time.time()
 connection = mysql.connector.connect(
     user="root",
-    password="tietokannanvahvasalasana",
-#    password="12345",
-#    host="mysql.metropolia.fi",
-    host="192.168.0.225",
+    password="12345",
+    host="mysql.metropolia.fi",
     port=3306,
     database="yutongd",
     connection_timeout=60,
