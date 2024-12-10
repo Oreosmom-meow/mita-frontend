@@ -92,7 +92,7 @@ for (let i = 1; i < 23; i++){
     mpt.id = `cell_${i}_player`
     let mpt2 = document.createElement('img');
     mpt2.src = "img/empty_image_dumb.png"
-    mpt2.id = `cell_${i}_player`
+    mpt2.id = `cell_${i}_slot2`
     celldiv.appendChild(mpt);
     celldiv.appendChild(mpt2);
     cell.appendChild(celldiv);

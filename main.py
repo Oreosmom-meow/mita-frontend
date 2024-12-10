@@ -91,17 +91,18 @@ def board():
     for thing, value in game_state.items():
         setattr(status, thing, value)
     # code here:
-    try:
-        board_airports = SQL_functions.get_airports_while_dreaming(status.session_id)
-        money = SQL_functions.get_money(status.session_id)
-        response = {
-            "airport_array": board_airports,
-            "money": money,
-            "status": 200
-        }
-        return response
-    except:
-        return {"status":400}
+    print("step 1")
+    board_airports = SQL_functions.get_airports_while_dreaming(status.session_id)
+    print("step 2")
+    money = SQL_functions.get_money(status.session_id)
+    print("step 3")
+    response = {
+        "airport_array": board_airports,
+        "money": money,
+        "status": 200
+    }
+    return response
+
 
 ##### THIS BASICALLY HANDLES GAMEPLAY, SAME AS MAIN GAME FUNCTION !!!!!!!
 @app.route('/gameapi/move')

@@ -20,21 +20,30 @@ def set_board_airports(session_id):
     airportnumbers = (2,4,5,7,8,10,13,15,16,19,20,21)
     i = 0
     start = time.time()
-    country_sql = f'SELECT DISTINCT iso_country FROM airport GROUP BY iso_country HAVING COUNT(*) >= 3 ORDER BY RAND() LIMIT 4;'
-    cursor = connector.connection.cursor()
-    cursor.execute(country_sql)
-    country_result = cursor.fetchall()
-    for row in country_result:
-        airport_sql = f'SELECT DISTINCT ident FROM airport WHERE iso_country = "{row[0]}" ORDER BY RAND() LIMIT 3;'
+    success = False
+    while not success:
+        airport_result = []
+        counter = 0
+        country_sql = f'SELECT DISTINCT iso_country FROM airport GROUP BY iso_country HAVING COUNT(*) >= 3 ORDER BY RAND() LIMIT 4;'
         cursor = connector.connection.cursor()
-        cursor.execute(airport_sql)
-        airport_result = cursor.fetchall()
-        for airport in airport_result:
-            sql = f'INSERT INTO player_property (airport_id, country_id, session_id, board_id) VALUES ("{airport[0]}", "{row[0]}", {session_id}, {airportnumbers[i]});'
-#            sql = f'INSERT INTO session_airp_count (airport_id, country_id, session_id, board_id) VALUES ("{airport[0]}", "{row[0]}", {session_id}, {airportnumbers[i]});'
+        cursor.execute(country_sql)
+        country_result = cursor.fetchall()
+        for row in country_result:
+            airport_sql = f'SELECT DISTINCT ident FROM airport WHERE iso_country = "{row[0]}" AND LENGTH(name) < 20 ORDER BY RAND() LIMIT 3;'
             cursor = connector.connection.cursor()
-            cursor.execute(sql)
-            i += 1
+            cursor.execute(airport_sql)
+            airport_result_temp = cursor.fetchall()
+            if len(airport_result_temp) == 3:
+                counter += 1
+                for airport in airport_result_temp:
+                    airport_result.append(airport)
+        if counter == 4:
+            success = True
+    for airport in airport_result:
+        sql = f'INSERT INTO player_property (airport_id, country_id, session_id, board_id) VALUES ("{airport[0]}", "{row[0]}", {session_id}, {airportnumbers[i]});'
+        cursor = connector.connection.cursor()
+        cursor.execute(sql)
+        i += 1
     end = time.time()
     print(f"Game database set up in {end - start} seconds.")
     return
@@ -135,20 +144,21 @@ def get_airport_name(status):
     return airp_name
 
 def get_airports_while_dreaming(session_id): #ChatGPT
-	airportnumbers = (2, 4, 5, 7, 8, 10, 13, 15, 16, 19, 20, 21)
-	airports = []
-	sql = f"select a.name, b.price from player_property pp join airport a on pp.airport_id = a.ident join board b on pp.board_id = b.board_id where pp.session_id = {session_id};"
-	cursor = connector.connection.cursor()
-	cursor.execute(sql)
-	result = cursor.fetchall()
-	for i in range(0,12):
-		thing = {
-			"board_id": airportnumbers[i],
-			"name": result[i][0],
-			"price": result[i][1]
-		}
-		airports.append(thing)
-	return airports
+    airportnumbers = (2, 4, 5, 7, 8, 10, 13, 15, 16, 19, 20, 21)
+    airports = []
+    sql = f"select a.name, b.price from player_property pp join airport a on pp.airport_id = a.ident join board b on pp.board_id = b.board_id where pp.session_id = {session_id};"
+    cursor = connector.connection.cursor()
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    print(result)
+    for i in range(0,12):
+        thing = {
+            "board_id": airportnumbers[i],
+            "name": result[i][0],
+            "price": result[i][1]
+        }
+        airports.append(thing)
+    return airports
 
 def get_money(session_id): #Yutong
     sql = f"select money from game_sessions where session_id = {session_id}"
