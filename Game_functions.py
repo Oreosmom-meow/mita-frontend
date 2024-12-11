@@ -8,19 +8,19 @@ def dice_roll(): # iida
     dice = random.randint(1, 6)
     return dice
 
-def income_tax(session_id): # iida
-    money = SQL_functions.get_money(session_id)
+def income_tax(status): # iida
+    money = SQL_functions.get_money(status.session_id)
     temp_money = money
     money -= round(50 + money * 0.25)
-    SQL_functions.modify_money(money,session_id)
-    return "income_tax"
+    SQL_functions.modify_money(money,status.session_id)
+    return f"You have landed on income tax cell. You paid ${temp_money-money}."
 
-def luxury_tax(session_id): # iida
-    money = SQL_functions.get_money(session_id)
+def luxury_tax(status): # iida
+    money = SQL_functions.get_money(status.session_id)
     temp_money = money
     money -= round(100 + money * 0.5)
-    SQL_functions.modify_money(money,session_id)
-    return "luxury_tax"
+    SQL_functions.modify_money(money,status.session_id)
+    return f"You have landed on luxury tax cell. You paid ${temp_money-money}."
 
 def print_in_jail_message(status):
     money = SQL_functions.get_money(status.session_id)
@@ -49,34 +49,33 @@ def release(status):
     status.jail_counter = 0
 
 def jail_event(status, choice): # iida
-    if choice == '1':
+    if choice == 'roll':
         dice_roll_1 = dice_roll()
         dice_roll_2 = dice_roll()
-        #print(f'You rolled {dice_roll_1} and {dice_roll_2}')
         status.rounds += 1
-        if status.jail_counter > 2:
-            #print(f'{colors.col.GREEN}You have been automatically released after 3 attempts. Game continues.{colors.col.END}')
+        if status.jail_counter >= 2:
             release(status)
+            return True
         else:
             if not check_if_double(dice_roll_1, dice_roll_2, status):
                 status.jail_counter += 1
-                #print(f'{colors.col.BOLD}{colors.col.RED}Failed to roll a double. Still in jail.', f'{colors.col.END}')
+                return False
             else:
-                #print(f'{colors.col.BOLD}{colors.col.GREEN}You have been released for rolling a double.' + f'{colors.col.END}')
                 release(status)
-    elif choice == '2':
+                return True
+    elif choice == 'pay':
                 money = SQL_functions.get_money(status.session_id)
                 money -= 200
                 SQL_functions.modify_money(money, status.session_id)
-                #print(f'{colors.col.BOLD}{colors.col.GREEN} You have spent 200 to be released, you currently have ${money} left.',f'{colors.col.END}')
                 release(status)
+                return True
     else:
         if status.jail_card > 0:
             release(status)
-            status.jailcard -= 1
-            SQL_functions.modify_out_of_jail_card(status.jailcard, status.session_id)
+            status.jail_card -= 1
+            return True
         else:
-            print("You don't have card to use")
+            return False
 
 def salary(status): # iida
     money = SQL_functions.get_money(status.session_id)
@@ -131,46 +130,45 @@ def chance_card(status): # yutong
     card_id = random.randint(1, 10)
     temp_money = SQL_functions.get_money(status.session_id)
     if card_id == 1:
-        print(f'You picked card: Advance to "Go". You will get $200. Congratulations.')
         salary(status)
         status.position = 1
+        return 'You picked card: Advance to "Go". You will get $200. Congratulations.'
     elif card_id == 2:
-        print(f'You picked card: Get out of jail. You can use it once when you are in jail.')
         status.jail_card += 1
-    elif card_id == 11:
-        print(f'You picked card: Go to jail. You will be moved to jail immediately.')
-        #jail_event(status)
+        return 'You picked card: Get out of jail. You can use it once when you are in jail.'
+    elif card_id == 3:
+        status.jailed = True
         status.position = 17
-    elif card_id == 4 or 3: # CHANGE !!!!!!!!!!!!!!!!!!!!
+        return 'You picked card: Go to jail. You will be moved to jail immediately.'
+    elif card_id == 4:
         temp_money = temp_money + 50
-        print(f'You picked card: Bank pays you 50! You will get $50 from the bank, congratulations!')
         SQL_functions.modify_money(temp_money,status.session_id)
+        return 'You picked card: Bank pays you 50! You will get $50 from the bank, congratulations!'
     elif card_id == 5:
         punishment = SQL_functions.get_all_owned_airport(status.session_id,status.username) * 25 + SQL_functions.get_upgraded_airport_number(status.session_id) * 50
         temp_money = temp_money - punishment
-        print(f'You picked card: Pay repair fee for all properties. You need to pay $25 for all airports you own, $50 for all the upgraded airports you own. You need to pay in total ${punishment}.')
         SQL_functions.modify_money(temp_money,status.session_id)
+        return f'You picked card: Pay repair fee for all properties. You need to pay $25 for all airports you own, $50 for all the upgraded airports you own. You need to pay in total ${punishment}.'
     elif card_id == 6:
         temp_money = SQL_functions.get_money(status.session_id) - 50
-        print(f'You picked card: Doctor fee. You need to pay $50 to the doctor.')
         SQL_functions.modify_money(temp_money,status.session_id)
+        return 'You picked card: Doctor fee. You need to pay $50 to the doctor.'
     elif card_id == 7:
         temp_money = SQL_functions.get_money(status.session_id) + 50
-        print(f'You picked card: Grand opening night. You will get $50 from the bank. Congratulations.')
         SQL_functions.modify_money(temp_money,status.session_id)
+        return 'You picked card: Grand opening night. You will get $50 from the bank. Congratulations.'
     elif card_id == 8:
         temp_money = SQL_functions.get_money(status.session_id) - 50
-        print(f'You picked card: School fee. You need to pay $50 to the school.')
         SQL_functions.modify_money(temp_money,status.session_id)
+        return 'You picked card: School fee. You need to pay $50 to the school.'
     elif card_id == 9:
         temp_money = SQL_functions.get_money(status.session_id) + 25
-        print(f'You picked card: Receive consultancy fee. You will get $25 from the bank. Congratulations.')
         SQL_functions.modify_money(temp_money,status.session_id)
+        return 'You picked card: Receive consultancy fee. You will get $25 from the bank. Congratulations.'
     elif card_id == 10:
         temp_money = SQL_functions.get_money(status.session_id) - 50
-        print(f'You picked card: Elected as chairman of the board. You need to pay $50 to the bank.')
         SQL_functions.modify_money(temp_money,status.session_id)
-    return card_id
+        return 'You picked card: Elected as chairman of the board. You need to pay $50 to the bank.'
 
 def bankrupt(session_id):
     print(f'😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵')
@@ -223,32 +221,16 @@ def print_player_property(status):
         print(f'{colors.col.CYAN}--------------------------------{colors.col.END}')
 
 def print_won_game(status):
-    print(f'👑👑👑👑👑👑👑👑👑👑👑👑👑👑👑👑👑')
-    print(f'{colors.col.BOLD}{colors.col.PINK}You have won!{colors.col.END}')
-    print(f'{colors.col.BOLD}{colors.col.CYAN}You ended the game with:',
-          f'${SQL_functions.get_money(status.session_id):.0f}')
-    print(f"You finished the game in {round(time.time() - connector.get_start_time())} seconds")
     money = SQL_functions.get_money(status.session_id)
     airport = SQL_functions.get_all_owned_airport(status.session_id, status.username)
     upgrade_airport_number = SQL_functions.get_upgraded_airport_number(status.session_id)
     status.score = round(money + airport * 5 + upgrade_airport_number * 10)
-    print(f'{colors.col.BOLD}{colors.col.GREEN}Your score is:', status.score, f'{colors.col.END}')
 
 def print_high_score(status):
     SQL_functions.insert_high_score(status.session_id, status.score)
     top_player, top_score, session_list = SQL_functions.get_top_high_score()
-    if status.session_id in session_list:
-        rank = session_list.index(status.session_id) + 1
-        print(f'You ranked {rank} in the top 5 high scores.')
-    elif status.session_id not in session_list:
-        print(f"You didn't make it to the top 5 high scores.")
-    index = 0
-    name_length = max(len(name) for name in top_player) + 2
-    print(f'{colors.col.PINK}{"USER":<{name_length}}| {colors.col.END}', f'{colors.col.PINK}SCORE{colors.col.END}')
-    while index < len(top_score):
-        print(f'{top_player[index]:<{name_length}}|  {top_score[index]}')
-        index += 1
     SQL_functions.clear_tables(status.session_id)
+    return top_player, top_score, session_list
 
 def go_to_jail(status):
     status.jailed = True

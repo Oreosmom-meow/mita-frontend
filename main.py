@@ -73,16 +73,6 @@ def start(username):
         "status": 200
     }
 
-@app.route('/gameapi/play')
-def play():
-    # game state session, dont touch
-    game_state = session.get('game_state')
-    status = GameState()
-    for thing, value in game_state.items():
-        setattr(status, thing, value)
-    # code here:
-    return {"status":200,"session_id":status.session_id}
-
 @app.route('/gameapi/board')
 def board():
     # game state session, dont touch
@@ -121,6 +111,25 @@ def tori(param):
 
     return response
 
+@app.route('/gameapi/jail/<param>')
+def jail(param):
+    # game state session, dont touch
+    game_state = session.get('game_state')
+    status = GameState()
+    for thing, value in game_state.items():
+        setattr(status, thing, value)
+    # code here:
+    release = Game_functions.jail_event(status, param)
+
+    response = {
+        "money": SQL_functions.get_money(status.session_id),
+        "release": release,
+        "jail_counter": status.jail_counter,
+        "jailcards": status.jail_card
+    }
+    setStatus(status)
+
+    return response
 
 ##### THIS BASICALLY HANDLES GAMEPLAY, SAME AS MAIN GAME FUNCTION !!!!!!!
 @app.route('/gameapi/move')
@@ -132,30 +141,27 @@ def move():
         setattr(status, thing, value)
     # code here:
     bankrupt = False
+    eventmsg = ''
     start_position = status.position
     start_money = SQL_functions.get_money(status.session_id)
     oldrounds = status.rounds
-    jailcheat = True
-    while jailcheat:
-        tempstatus = status
-        r1, r2, tempstatus = Game_functions.roll_and_move(tempstatus)
-        if tempstatus.position != 6:
-            jailcheat = False
-            status = tempstatus
+    r1, r2, status = Game_functions.roll_and_move(status)
     newrounds = status.rounds
-    print(status.position)
-
     total = r1 + r2
-    if total == 200:
-        print("yay!")
-    # if Game_functions.check_if_double(r1, r2, status):
-    #     status.doubles += 1
-    # else:
-    #     status.doubles = 0
 
-    # if status.doubles >= 2:
-    #     status.jailed = True
-    #     status.doubles = 0
+    if newrounds > oldrounds:
+        Game_functions.salary(status)
+
+
+    if Game_functions.check_if_double(r1, r2, status):
+        status.doubles += 1
+    else:
+        status.doubles = 0
+
+    if status.doubles >= 2:
+        status.jailed = True
+        status.position = 17
+        status.doubles = 0
     else:
         temp_type_id = SQL_functions.get_type_id(status.position)
         # airport cell
@@ -163,30 +169,37 @@ def move():
             id = Game_functions.check_airport_cell(status)
         # Other cells
         elif temp_type_id == 2:
-            id = Game_functions.chance_card(status)
+            id = 'event' 
+            eventmsg = Game_functions.chance_card(status)
         elif temp_type_id == 3:
             id = Game_functions.go_to_jail(status)
         elif temp_type_id == 4:
-            id = Game_functions.income_tax(status.session_id)
+            id = 'event'
+            eventmsg = Game_functions.income_tax(status)
         elif temp_type_id == 5:
-            id = Game_functions.luxury_tax(status.session_id)
+            id = 'event'
+            eventmsg = Game_functions.luxury_tax(status)
         else:
             id = 0
 
     print(id)
 
     end_money = SQL_functions.get_money(status.session_id)
-    if newrounds > oldrounds:
-        Game_functions.salary(status)
+
 
     if SQL_functions.get_money(status.session_id) <= 0:
-        bankrupt = True
+        id = "bankrupt"
+
+    if status.jailed:
+        id = "jail"
 
     if status.rounds > 20:
         id = "win"
+        Game_functions.print_won_game(status)
 
     response = {
-        "bankrupt": bankrupt,
+        "score": status.score,
+        "eventmsg": eventmsg,
         "start_money": start_money,
         "end_money": end_money,
         "money": SQL_functions.get_money(status.session_id),
@@ -195,7 +208,7 @@ def move():
         "start_position": start_position,
         "end_position": status.position,
         "round": status.rounds,
-        "status": 200
+        "jailcard": status.jail_card
     }
     setStatus(status)
     return response

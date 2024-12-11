@@ -1,18 +1,48 @@
 'use strict';
 const startform = document.querySelector('#start-game');
 const statustext = document.querySelector('#status');
+
 document.querySelector('#upgrade-button').addEventListener('click', upgradeAirport);
 document.querySelector('#sell-button').addEventListener('click', sellAirport);
 document.querySelector('#buy-button').addEventListener('click', buyAirport);
+document.querySelector('#jail-dice-button').addEventListener('click', (event) => jailAction("roll"));
+document.querySelector('#jail-money-button').addEventListener('click', (event) => jailAction("pay"));
+document.querySelector('#jail-card-button').addEventListener('click', (event) => jailAction("card"));
 
+const playerimg = 'img/player.png' 
 
+function updateMoney(money){
+	document.querySelector('#player-money').innerHTML = `Money: ${money}`;
+}
 
-const playerimg = 'img/player.png'
+async function jailAction(action) {
+	try{
+        const response = await fetch(`http://127.0.0.1:5000/gameapi/jail/${action}`,{
+            credentials: 'include'
+        });
+		const jsonData = await response.json();
+		let money = jsonData["money"];
+		let release = jsonData["release"];
+		let jail_counter = jsonData["jail_counter"];
+		let jailcards = jsonData["jailcards"];
+
+		document.querySelector('#times-rolled').innerHTML = `You have rolled ${jail_counter} times.`;
+
+		if (release){
+			document.querySelector(`[id="cell_17_player"]`).src = 'img/player.png';
+			document.querySelector('#action-window').style.display = 'block';
+			document.querySelector('#jail-window').style.display = 'none';
+			updateMoney(money);
+			document.querySelector('#jail-cards').innerHTML = `Jail cards: ${jailcards}`;
+			document.querySelector('#jail-cards-jail').innerHTML = `Jail cards: ${jailcards}`;
+		}
+    } catch (error){
+        console.log(error);
+    }
+}
 
 async function makeBoard(){
-	document.querySelector('#upgrade-button').style.display = 'none';
-	document.querySelector('#sell-button').style.display = 'none';
-	document.querySelector('#buy-button').style.display = 'none';
+	hideButtons();
 
     try{
         const response = await fetch(`http://127.0.0.1:5000/gameapi/board`,{
@@ -31,7 +61,7 @@ async function makeBoard(){
 			bank_owned.src = 'img/bank_owned.png'
 		}
 
-        document.querySelector('#player-money').innerHTML = `Money: ${money}`;
+        updateMoney(money);
     } catch (error){
         console.log(error);
     }}
@@ -43,33 +73,33 @@ function startGame(){
 	document.querySelector('dialog').close();
 }
 
+function hideButtons(){
+	document.querySelector('#upgrade-button').style.display = 'none';
+	document.querySelector('#sell-button').style.display = 'none';
+	document.querySelector('#buy-button').style.display = 'none';
+}
+
 // temp, hopefully. puts player in jail.
-function jailProceedings(){
+function jailProceedings(money, cards){
+	document.querySelector('#jail-cash').style.display = 'none';
+	document.querySelector('#jail-card').style.display = 'none';
     document.querySelector(`[id="cell_17_player"]`).src = 'img/cat_jail.png';
     document.querySelector('#action-window').style.display = 'none';
     document.querySelector('#jail-window').style.display = 'block';
+	document.querySelector('#jail-money-counter').innerHTML = `Money: ${money}`;
+	document.querySelector('#times-rolled').innerHTML = 'You have rolled 0 times.';
 
-	// get out of jail, free
-    document.querySelector('#jail-card-button').addEventListener('click', (event) => {
-        document.querySelector(`[id="cell_17_player"]`).src = playerimg;
-        document.querySelector('#jail-window').style.display = 'none';
-        document.querySelector('#action-window').style.display = 'block';
-        })
-}
-
-// rolls the dice
-// actual roll should be in the flask
-function diceRoll(){
-    let roll = (Math.floor(Math.random()*6) + 1) + (Math.floor(Math.random()*6) + 1);
-    document.querySelector('#roll-value').innerHTML = `Dice rolled:: ${roll}`;
-    return roll;
+	if (money > 200){
+		document.querySelector('#jail-cash').style.display = 'block';
+	}
+	if (cards > 0){
+		document.querySelector('#jail-card').style.display = 'block';
+	}
 }
 
 async function movePlayer(){
 	statustext.innerHTML = '';
-	document.querySelector('#upgrade-button').style.display = 'none';
-	document.querySelector('#sell-button').style.display = 'none';
-	document.querySelector('#buy-button').style.display = 'none';
+	hideButtons();
     try{
         const response = await fetch(`http://127.0.0.1:5000/gameapi/move`,{
             credentials: 'include'
@@ -98,11 +128,12 @@ async function movePlayer(){
 		let start_money = jsonData["start_money"];
 		let end_money = jsonData["end_money"];
 		let money = jsonData["money"];
-
-		document.querySelector('#player-money').innerHTML = `Money: ${money}`;
+		let jailcards = jsonData["jailcard"];
+		document.querySelector('#jail-cards').innerHTML = `Jail cards: ${jailcards}`;
+		document.querySelector('#jail-cards-jail').innerHTML = `Jail cards: ${jailcards}`;
+		updateMoney(money);
 
 		let id = jsonData["id"];
-	console.log(id);
 
 		switch(id){
 			case 'ownedupgraded':
@@ -120,69 +151,29 @@ async function movePlayer(){
 				break;
 			case 'noyes':
 				document.querySelector('#buy-button').style.display = 'block';
-				
 				break;
 			case 'bank':
 				break;
-			case 1:
-				statustext.innerHTML = 'You picked card: Advance to "Go". You will get $200. Congratulations.';
-				break;
-			case 2:
-				statustext.innerHTML = 'You picked card: Get out of jail. You can use it once when you are in jail.';
-				break;
-			case 3:
-				statustext.innerHTML = 'You picked card: Go to jail. You will be moved to jail immediately.';
-				break;
-			case 4:
-				statustext.innerHTML = 'You picked card: Bank pays you 50! You will get $50 from the bank, congratulations!';
-				break;
-			case 5:
-				statustext.innerHTML = `You picked card: Pay repair fee for all properties. You need to pay $25 for all airports you own, $50 for all the upgraded airports you own. You need to pay in total ${start_money-end_money}.`
-				break;
-			case 6:
-				statustext.innerHTML = 'You picked card: Doctor fee. You need to pay $50 to the doctor.';
-				break;
-			case 7:
-				statustext.innerHTML = 'You picked card: Grand opening night. You will get $50 from the bank. Congratulations.';
-				break;
-			case 8:
-				statustext.innerHTML = 'You picked card: School fee. You need to pay $50 to the school.';
-				break;
-			case 9:
-				statustext.innerHTML = 'You picked card: Receive consultancy fee. You will get $25 from the bank. Congratulations.';
-				break;
-			case 10:
-				statustext.innerHTML = 'You picked card: Elected as chairman of the board. You need to pay $50 to the bank.';
-				break;
-			case 'income_tax':
-				statustext.innerHTML = `You have landed on income tax cell. You paid ${start_money-end_money}`;
-				break;
-			case 'luxury_tax':
-				statustext.innerHTML = `You have landed on luxury tax cell. You paid ${start_money-end_money}`;
+			case 'event':
+				statustext.innerHTML = jsonData["eventmsg"];
 				break;
 			case 'jail':
-				jailProceedings();
+				jailProceedings(money, jailcards);
 				break;
 			case 'win':
 				document.querySelector('#action-window').style.display = 'none';
 				document.querySelector('#bankrupt').style.display = 'none';
-				document.querySelector('#upgrade-button').style.display = 'none';
-				document.querySelector('#sell-button').style.display = 'none';
-				document.querySelector('#buy-button').style.display = 'none';
+				hideButtons();
 				document.querySelector('#play-button').style.display = 'none';
 				document.querySelector('#winning').style.display = 'block';
-				break
-			}
-			if (jsonData["bankrupt"]){
+				document.querySelector('#score').innerHTML = `You scored: ${jsonData["score"]} points!`;
+				break;
+			case 'bankrupt':
 				document.querySelector('#action-window').style.display = 'none';
 				document.querySelector('#bankrupt').style.display = 'block';
-				document.querySelector('#upgrade-button').style.display = 'none';
-				document.querySelector('#sell-button').style.display = 'none';
-				document.querySelector('#buy-button').style.display = 'none';
+				hideButtons();
 				document.querySelector('#play-button').style.display = 'none';
-
-		
-		}
+			}
     } catch (error){
         console.log(error);
     }

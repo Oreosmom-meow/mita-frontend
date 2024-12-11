@@ -269,12 +269,6 @@ def modify_owner_to_bank(position,session_id):
     cursor = connector.connection.cursor()
     cursor.execute(update)
 
-'''def modify_out_of_jail_card(jail_card,session_id):
-    global username
-    sql = f"update game_sessions set out_of_jail_card = '{jail_card}' where session_id = {session_id}"
-    cursor = connector.connection.cursor()
-    cursor.execute(sql)
-'''
 def modify_airport_status(position, temp_status,session_id):
     sql = f"update player_property set upgrade_status = {temp_status} where board_id = {position} and session_id = {session_id}"
     cursor = connector.connection.cursor()

@@ -15,37 +15,36 @@
             <p id="current-round">1</p>
             <p id="roll-value">Dice rolled: </p>
             <p id="player-money">Money: </p>
+			<p id="jail-cards">Jail cards: </p>
         </div>
         <div class="roll-dice-button" id="play-button">Roll the dice</div>
         <div class="upgrade-button" id="upgrade-button">Upgrade property</div>
         <div class="buy-button" id="buy-button">Buy property</div>
         <div class="sell-button" id="sell-button"> Sell property</div>
-
 		<br>
         <div class="game-status-containder">
             <p class="container-title">Game message</p>
             <p id="status">current status: unpleasant</p>
         </div>
-        
-        <br>
-        <p></p>
-        <p></p>
-        <p></p>
-        <p></p>
     </div>
 
     <div class="jail-window" id="jail-window">
         <h1>YOU ARE IN JAIL</h1>
 
         <p>roll the dice and get doubles to get out</p>
-        <img src="img/dice.png" alt="dice" id="jail-dice-button">
+        <div class="roll-dice-button" id="jail-dice-button">Roll the dice</div>
+		<p id="times-rolled">You have rolled 0 times.</p>
 
-        <p>pay 200 to get out</p>
-        <img src="img/mono-money.png" alt="pile of monopoly money" id="jail-money-button">
-        <h6>current money: not implemented</h6>
-
-        <p>use 'get out of jail free' card</p>
-        <img src="img/get-out-card.jpg" alt?="get out of jail free card" id="jail-card-button">
+		<div id="jail-cash">
+			<p>pay 200 to get out</p>
+			<img src="img/mono-money.png" alt="pile of monopoly money" id="jail-money-button">
+			<p id="jail-money-counter">current money: not implemented</p>
+		</div>
+		<div id="jail-card">
+			<p>use 'get out of jail free' card</p>
+			<img src="img/get-out-card.jpg" alt?="get out of jail free card" id="jail-card-button">
+			<p id="jail-cards-jail">Jail cards: </p>
+		</div>
     </div>
 
 	<div class="bankrupt" id="bankrupt">
@@ -58,6 +57,8 @@
         <h1>YOU WIN</h1>
 		<br><br>
         <p>yay :)</p>
+		<br><br>
+		<p id="score"></p>
     </div>
 
 
