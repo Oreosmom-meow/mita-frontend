@@ -1,6 +1,5 @@
 import random
 import connector
-import colors
 import time
 
 def insert_username(username,gamestart):
@@ -61,11 +60,9 @@ def set_player_property(session_id):
         i += 1
     random_airport = random.choice(airportnumbers)
     select_country = f"select board_id from player_property where country_id in (select country_id from player_property where board_id = {random_airport} and session_id = {session_id}) and session_id = {session_id};"
-    print(random_airport)
     cursor = connector.connection.cursor()
     cursor.execute(select_country)
     country_result = cursor.fetchall()
-    print(country_result)
     for row in country_result:
         update_bank = f"update player_property set ownership = 'bank' where board_id = {row[0]} and session_id = {session_id};"
         cursor = connector.connection.cursor()
@@ -98,11 +95,9 @@ def check_owns_all_of_country(status) :
 
 def clear_tables(session_id):
     sql1 = f"DELETE FROM player_property where session_id = {session_id};"
-   # sql2 = f"DELETE FROM player_property where session_id = {session_id};"
     cursor = connector.connection.cursor()
     cursor.execute(sql1)
-   # cursor.execute(sql2)
-    print(f"{colors.col.GREEN}Successfully deleted session:{session_id} related redundant tables.{colors.col.END}")
+    print(f"Successfully deleted session:{session_id} related redundant tables.")
 
 def get_country_name(status):
     sql = f"select name from country join player_property on iso_country = country_id WHERE player_property.session_id = {status.session_id} and player_property.board_id = {status.position};"

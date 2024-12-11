@@ -105,7 +105,6 @@ async function movePlayer(){
             credentials: 'include'
         });
         let jsonData = await response.json();
-        console.log(jsonData);
         let startposition = jsonData["start_position"];
         let endposition = jsonData["end_position"];
 		let total = jsonData["total"];
@@ -195,14 +194,12 @@ async function upgradeAirport(){
     }
 }
 
-
 async function buyAirport(){
 	try{
         const response = await fetch(`http://127.0.0.1:5000/gameapi/tori/buy`,{
             credentials: 'include'
         });
         let jsonData = await response.json();
-		console.log(jsonData)
 		document.querySelector('#buy-button').style.display = 'none';
 		document.querySelector(`#cell_${jsonData['position']}_slot2`).src = 'img/owned.png';
 		document.querySelector('#player-money').innerHTML = `Money: ${jsonData['money']}`;

@@ -1,8 +1,6 @@
 import random
 import SQL_functions
-import colors
 import connector
-import time
 
 def dice_roll(): # iida
     dice = random.randint(1, 6)
@@ -21,21 +19,6 @@ def luxury_tax(status): # iida
     money -= round(100 + money * 0.5)
     SQL_functions.modify_money(money,status.session_id)
     return f"You have landed on luxury tax cell. You paid ${temp_money-money}."
-
-def print_in_jail_message(status):
-    money = SQL_functions.get_money(status.session_id)
-    print(f'-------------------------------------------------------------------------')
-    print(f'{colors.col.BOLD}{colors.col.YELLOW}You are in jail.', f'{colors.col.END}')
-    print(
-        f'{colors.col.BOLD}{colors.col.YELLOW}Type "1" to roll the dice and get doubles to get out. You have {3 - status.jail_counter} rolls left until automatic release.',
-        f'{colors.col.END}')
-    print(f'{colors.col.BOLD}{colors.col.YELLOW}Type "2" to pay a fine of 200 to get out.', f'{colors.col.END}')
-    if money <= 200:
-        print(f'{colors.col.BOLD}{colors.col.RED}Paying the fine would lead you to bankruptcy.', f'{colors.col.END}')
-    print(f'{colors.col.BOLD}{colors.col.YELLOW}Type "3" to use a get out of jail free card to get out.',
-          f'{colors.col.END}')
-    print(f'-------------------------------------------------------------------------')
-
 
 def check_if_double(dice_roll_1, dice_roll_2, status):
     if dice_roll_1 == dice_roll_2:
@@ -84,7 +67,6 @@ def salary(status): # iida
     temp_money = money
     temp_money += 200 + owned_airport * 10 + upgraded_airport * 25
     SQL_functions.modify_money(temp_money,status.session_id)
-    print(f'{colors.col.BOLD}{colors.col.BLUE}You passed Go cell. Salary time! You earned:', f'{temp_money - money:.0f}. Because you owned {owned_airport} airports and upgraded {upgraded_airport} airports' + f'{colors.col.END}')
 
 def buy_airport(status): #yutong
     temp_price = SQL_functions.get_airport_price(status.position)
@@ -103,13 +85,8 @@ def get_sell_price(status):
     temp_money = SQL_functions.get_money(status.session_id)
     if upgrade_level == 0:
         temp_money = (SQL_functions.get_airport_price(status.position) * 0.5)
-        #print(f'Selling this airport will get you ${temp_money}')
     elif upgrade_level == 1:
         temp_money = (SQL_functions.get_airport_price(status.position) * 0.5 * 0.25)
-        #print(f'Selling this level will get you ${temp_money}')
-    elif upgrade_level == 2:
-        temp_money = (SQL_functions.get_airport_price(status.position) * 0.5 * 0.5)
-        #print(f'Selling this level will get you ${temp_money}')
     return temp_money
 
 def upgrade_airport(status): # roberto
@@ -170,11 +147,6 @@ def chance_card(status): # yutong
         SQL_functions.modify_money(temp_money,status.session_id)
         return 'You picked card: Elected as chairman of the board. You need to pay $50 to the bank.'
 
-def bankrupt(session_id):
-    print(f'😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵')
-    print(f'{colors.col.BOLD}{colors.col.RED}You are bankrupt 💸!  \nGAME OVER', f'{colors.col.END}')
-    SQL_functions.clear_tables(session_id)
-
 def developer_privileges(devcheat,status):
     if devcheat == "developer privileges":
         print("Developer mode activated")
@@ -199,27 +171,6 @@ def developer_privileges(devcheat,status):
         elif command == 'position':
             status.position = int(input())
 
-def print_player_property(status):
-    print(f'{colors.col.BOLD}{colors.col.PINK}━━━━━━━━━━━━━━━━━━━━━{colors.col.END}' + '\n')
-    print(f'{colors.col.BOLD}{colors.col.PINK}Round: {status.rounds} | Position: {status.position}{colors.col.END}')
-    country_list, airport_number = SQL_functions.get_all_country_name_and_number(status)
-    #jail_card = SQL_functions.check_jail_card(status.session_id)
-    length = len(country_list)
-    money = SQL_functions.get_money(status.session_id)
-    print(f'{colors.col.CYAN}---------Player Property---------{colors.col.END}')
-    print(f'{colors.col.BOLD}💰Money: {colors.col.CYAN}${money}{colors.col.END}')
-    #print(f'🃏Jail card: {colors.col.CYAN}{jail_card}{colors.col.END}')
-    if length == 0:
-        print(f"{colors.col.BOLD}🛬Properties:{colors.col.CYAN} 0{colors.col.END} {colors.col.END}")
-        print(f'{colors.col.CYAN}--------------------------------{colors.col.END}')
-    else:
-        print(f'{colors.col.BOLD}🛬Properties: {colors.col.END}')
-        max_country_length = max(len(country) for country in country_list) + 2
-        print(f'{colors.col.BOLD}{"Country":<{max_country_length}} | Number of airports 🛬 owned{colors.col.END}')
-        for i in range(length):
-            print(f'{colors.col.CYAN}{country_list[i]:<{max_country_length}} | {airport_number[i]}{colors.col.END}')
-        print(f'{colors.col.CYAN}--------------------------------{colors.col.END}')
-
 def print_won_game(status):
     money = SQL_functions.get_money(status.session_id)
     airport = SQL_functions.get_all_owned_airport(status.session_id, status.username)
@@ -236,11 +187,7 @@ def go_to_jail(status):
     status.jailed = True
     status.position = 17
 
-def dice_roll_result(dice_roll_1,dice_roll_2,status):
-    print(f'You rolled 🎲:', f'{dice_roll_1}, {dice_roll_2}', f'| {colors.col.PINK}You moved to cell number:',f'{status.position}{colors.col.END}')
-
 def rounds_up(status):
-    print(f'You finished one round of the game. Now rounds + 1. Position starts from 0.')
     status.rounds += 1
     status.position = status.position - 21
 
@@ -300,4 +247,3 @@ def check_username(status):
     else:
         SQL_functions.insert_username(status.username, connector.get_start_time())
         status.session_id = SQL_functions.get_session_id()
-    print(f'Username confirmed as {status.username}, session id = {status.session_id}')
