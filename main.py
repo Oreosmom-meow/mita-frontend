@@ -144,61 +144,61 @@ def move():
             status = tempstatus
     newrounds = status.rounds
     print(status.position)
-    if newrounds > 20:
-        print('yay!')
 
+    total = r1 + r2
+    if total == 200:
+        print("yay!")
+    # if Game_functions.check_if_double(r1, r2, status):
+    #     status.doubles += 1
+    # else:
+    #     status.doubles = 0
+
+    # if status.doubles >= 2:
+    #     status.jailed = True
+    #     status.doubles = 0
     else:
-        total = r1 + r2
-        if total == 200:
-            print("yay!")
-        # if Game_functions.check_if_double(r1, r2, status):
-        #     status.doubles += 1
-        # else:
-        #     status.doubles = 0
-
-        # if status.doubles >= 2:
-        #     status.jailed = True
-        #     status.doubles = 0
+        temp_type_id = SQL_functions.get_type_id(status.position)
+        # airport cell
+        if temp_type_id == 1:
+            id = Game_functions.check_airport_cell(status)
+        # Other cells
+        elif temp_type_id == 2:
+            id = Game_functions.chance_card(status)
+        elif temp_type_id == 3:
+            id = Game_functions.go_to_jail(status)
+        elif temp_type_id == 4:
+            id = Game_functions.income_tax(status.session_id)
+        elif temp_type_id == 5:
+            id = Game_functions.luxury_tax(status.session_id)
         else:
-            temp_type_id = SQL_functions.get_type_id(status.position)
-            # airport cell
-            if temp_type_id == 1:
-                id = Game_functions.check_airport_cell(status)
-            # Other cells
-            elif temp_type_id == 2:
-                id = Game_functions.chance_card(status)
-            elif temp_type_id == 3:
-                id = Game_functions.go_to_jail(status)
-            elif temp_type_id == 4:
-                id = Game_functions.income_tax(status.session_id)
-            elif temp_type_id == 5:
-                id = Game_functions.luxury_tax(status.session_id)
-            else:
-                id = 0
+            id = 0
 
-        print(id)
+    print(id)
 
-        end_money = SQL_functions.get_money(status.session_id)
-        if newrounds > oldrounds:
-            Game_functions.salary(status)
+    end_money = SQL_functions.get_money(status.session_id)
+    if newrounds > oldrounds:
+        Game_functions.salary(status)
 
-        if SQL_functions.get_money(status.session_id) <= 0:
-            bankrupt = True
+    if SQL_functions.get_money(status.session_id) <= 0:
+        bankrupt = True
 
-        response = {
-            "bankrupt": bankrupt,
-            "start_money": start_money,
-            "end_money": end_money,
-            "money": SQL_functions.get_money(status.session_id),
-            "id": id,
-            "total": total,
-            "start_position": start_position,
-            "end_position": status.position,
-            "round": status.rounds,
-            "status": 200
-        }
-        setStatus(status)
-        return response
+    if status.rounds > 20:
+        id = "win"
+
+    response = {
+        "bankrupt": bankrupt,
+        "start_money": start_money,
+        "end_money": end_money,
+        "money": SQL_functions.get_money(status.session_id),
+        "id": id,
+        "total": total,
+        "start_position": start_position,
+        "end_position": status.position,
+        "round": status.rounds,
+        "status": 200
+    }
+    setStatus(status)
+    return response
 
 
 @app.errorhandler(404)

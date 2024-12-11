@@ -163,7 +163,15 @@ async function movePlayer(){
 			case 'jail':
 				jailProceedings();
 				break;
-
+			case 'win':
+				document.querySelector('#action-window').style.display = 'none';
+				document.querySelector('#bankrupt').style.display = 'none';
+				document.querySelector('#upgrade-button').style.display = 'none';
+				document.querySelector('#sell-button').style.display = 'none';
+				document.querySelector('#buy-button').style.display = 'none';
+				document.querySelector('#play-button').style.display = 'none';
+				document.querySelector('#winning').style.display = 'block';
+				break
 			}
 			if (jsonData["bankrupt"]){
 				document.querySelector('#action-window').style.display = 'none';
